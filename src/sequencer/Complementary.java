@@ -20,6 +20,12 @@ public class Complementary extends Sequency{
 
 	@Override
 	public char get(int i){
-		return fragment.charAt(size-i);
+		char c = fragment.charAt(size-i);
+		switch(c){
+			case 'a': return 't';
+			case 't': return 'a';
+			case 'c': return 'g';
+			default : return 'c';
+		}
 	}
 }
