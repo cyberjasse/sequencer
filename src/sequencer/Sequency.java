@@ -16,6 +16,8 @@ public class Sequency{
 		complementary = new Complementary(charset, this);
 	}
 
+	protected Sequency(){}
+
 	/**
 	 * Perform the semi global alignment to 2 sequencies.
 	 * @param other The second sequency to perform the semi-global alignment.
