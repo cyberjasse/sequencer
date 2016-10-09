@@ -16,7 +16,14 @@ public class Sequency{
 		complementary = new Complementary(charset, this);
 	}
 
-	protected Sequency(){}
+	/**
+	 * @param charset The DNA fragment.
+	 * @param comp The inverted complementary of charset
+	 */
+	protected Sequency(String charset, Sequency comp){
+		fragment = charset;
+		complementary = comp;
+	}
 
 	/**
 	 * Perform the semi global alignment to 2 sequencies.

@@ -13,8 +13,7 @@ public class Complementary extends Sequency{
 	 * @param first A reference to the Sequency object of the initial fragment.
 	 */
 	public Complementary(String charset, Sequency first){
-		fragment = charset;
-		complementary = first;
+		super(charset, first);
 		size = fragment.length()-1;
 	}
 
