@@ -3,11 +3,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The main class. It contains the main method to get final consensus
- * @author Huysmans Guillaume, Buru Jason
+ * The main class computing the final consensus
+ * @author Guillaume Huysmans, Jason Bury
  */
 public class Sequencer{
-
 	/**
 	 * Enter the path of the fragments file as first parameter
 	 */
@@ -32,9 +31,9 @@ public class Sequencer{
 	}
 
 	/**
-	 * Get final consensus
+	 * Get final consensus (hope there are not too many...)
 	 * @param fragments The list of fragments.
-	 * @return All possible final consensus, including complementary. Hope there are not too many.
+	 * @return All possible final consensuses, including complementary fragments.
 	 */
 	public static List<Sequence> getFinalConsensus(List<Sequence> fragments){
 		List<Sequence> consensus = new ArrayList<Sequence>();

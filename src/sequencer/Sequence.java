@@ -1,7 +1,7 @@
 package sequencer;
 /**
- * A DNA fragment.
- * @author Huysmans Guillaume, Bury Jason
+ * A DNA fragment
+ * @author Guillaume Huysmans, Jason Bury
  */
 
 public class Sequence{

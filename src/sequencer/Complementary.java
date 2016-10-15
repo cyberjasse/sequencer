@@ -1,7 +1,7 @@
 package sequencer;
 /**
  * The inverted complementary of a DNA sequence
- * @author Huysmans Guillaume, Bury Jason
+ * @author Guillaume Huysmans, Jason Bury
  */
 
 public class Complementary extends Sequence {
