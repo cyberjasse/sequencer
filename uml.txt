@@ -1,16 +1,16 @@
 @startuml
-class Sequency {
+class Sequence {
 	-<final> String charset
-	+<final> Sequency complementary
-	+<init> Sequency(String charset)
-	-Matrix semiGlobalAlignment(Sequency other)
+	+<final> Sequence complementary
+	+<init> Sequence(String charset)
+	-Matrix semiGlobalAlignment(Sequence other)
 	+char get(int index)
-	+int getAlignmentScore(Sequency other)
-	+int getInclusionScore(Sequency other)
-	+Sequency getConsensus(Sequency other)
+	+int getAlignmentScore(Sequence other)
+	+int getInclusionScore(Sequence other)
+	+Sequence getConsensus(Sequence other)
 }
 class Complementary {
-	+<init> Complementary(String charset, Sequency first)
+	+<init> Complementary(String charset, Sequence first)
 	+char get(int index)
 }
 class Node {
@@ -19,6 +19,6 @@ class Node {
 	+<final> int weight
 	+<init> Node(int f, int t, int w)
 }
-Sequency <|-- Complementary
-Sequency "1" *--* "1" Complementary
+Sequence <|-- Complementary
+Sequence "1" *--* "1" Complementary
 @enduml
