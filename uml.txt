@@ -13,11 +13,11 @@ class Complementary {
 	+<init> Complementary(String charset, Sequence first)
 	+char get(int index)
 }
-class Node {
+class Edge {
 	+<final> int from
 	+<final> int to
 	+<final> int weight
-	+<init> Node(int f, int t, int w)
+	+<init> Edge(int f, int t, int w)
 }
 Sequence <|-- Complementary
 Sequence "1" *--* "1" Complementary

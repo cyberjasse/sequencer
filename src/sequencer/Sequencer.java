@@ -44,15 +44,14 @@ public class Sequencer{
 	/**
 	 * A node of the graph used for getFinalConsensus()
 	 */
-	private class Node{
+	private class Edge{
 		public final int from;
 		public final int to;
 		public final int weight;
-		public Node(int f, int t, int w){
+		public Edge(int f, int t, int w){
 			from = f;
 			to = t;
 			weight = w;
 		}
 	}
 }
-		
