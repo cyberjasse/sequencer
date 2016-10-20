@@ -27,6 +27,29 @@ public class Sequence{
 	}
 
 	/**
+	 * Print a int[][] table for debugging
+	 * @param tab The table
+	 * @param nrows The number of rows
+	 * @param ncols The number of column
+	 */
+	private void printtab(int[][] tab, int nrows, int ncols){
+		for(int i=0 ; i<nrows ; i++){
+			for(int j=0 ; j<ncols ; j++){
+				int num = tab[i][j];
+				if(num <= NEGATIVE_INFINITY){
+					System.out.print(" -IY");
+				}
+				else{
+					String st = Integer.toString(num);
+					if(st.length() > 3) System.out.print(st = " BIG");
+					else System.out.print(String.format(" %1$03d",num));
+				}
+			}
+			System.out.print("\n");
+		}
+	}
+
+	/**
 	 * The max method for 3 parameters
 	 */
 	private int max(int a, int b, int c){
@@ -46,8 +69,8 @@ public class Sequence{
 	 * @return The matrix needed to compute the score or the resulting consensus.
 	 */
 	public int[][] semiGlobalAlignment(Sequence other){
-		int m = this.fragment.length();
-		int n = other.fragment.length();
+		int m = this.fragment.length()+1;
+		int n = other.fragment.length()+1;
 		int[][] a = new int[m][n];//Score of best alignment ending by the pair Si Tj
 		int[][] b = new int[m][n];//Score of best alignment ending by the pair _  Tj
 		int[][] c = new int[m][n];//Score of best alignment ending by the pair Si  _
@@ -56,31 +79,37 @@ public class Sequence{
 		b[0][0] = NEGATIVE_INFINITY;
 		c[0][0] = NEGATIVE_INFINITY;
 		int i, j;
-		for(i=0 ; i<m ; i++){
+		for(i=1 ; i<m ; i++){
 			a[i][0] = NEGATIVE_INFINITY;
 			b[i][0] = NEGATIVE_INFINITY;
 			c[i][0] = FIRST_GAP_SCORE + GAP_SCORE*i;
 		}
-		for(j=0 ; j<n ; j++){
+		for(j=1 ; j<n ; j++){
 			a[0][j] = NEGATIVE_INFINITY;
 			b[0][j] = FIRST_GAP_SCORE + GAP_SCORE*j;
 			c[0][j] = NEGATIVE_INFINITY;
 		}
 		//Applied the reccurence with an iterative implementation
+		int score;
 		for(i=1 ; i<m ; i++){
 			for(j=1 ; j<n ; j++){
-				int score;
-				if(get(i) == other.get(j)){
+				int im1 = i-1, jm1 = j-1;//to not compute them 7 times
+				int hpg = (FIRST_GAP_SCORE+GAP_SCORE);//to not compute it 4 times.
+				if(get(im1) == other.get(jm1)){
 					score = MATCH_SCORE;
 				}
 				else{
 					score = MISMATCH_SCORE;
 				}
-				int im1 = i-1, jm1 = j-1;//to not compute them 6 times
-				int hpg = (FIRST_GAP_SCORE+GAP_SCORE);//to not compute it 4 times.
-				a[i][j] = score + max(a[im1][jm1], b[im1][jm1], c[im1][jm1]);//FIXME: can it be more than maximum int value ?
+				a[i][j] = score + max(a[im1][jm1], b[im1][jm1], c[im1][jm1]);
 				b[i][j] = max(hpg+a[i][jm1], GAP_SCORE+b[i][jm1], hpg+c[i][jm1]);
 				c[i][j] = max(hpg+a[im1][j], hpg+b[im1][j], GAP_SCORE+c[im1][j]);
+				/*printtab(a,m,n);
+				System.out.println("  ");
+				printtab(b,m,n);
+				System.out.println("  ");
+				printtab(c,m,n);
+				System.out.println(" ------------- ");*/
 			}
 		}
 		//Then return matrice containing the score of the best alignment
