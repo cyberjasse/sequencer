@@ -11,7 +11,7 @@ public class Sequence{
 	private static final int GAP_SCORE = -2;//-g
 	private static final int MATCH_SCORE = 1;
 	private static final int MISMATCH_SCORE = -1;
-	private static final int NEGATIVE_INFINITY = Integer.MIN_VALUE;// int in java does not support a real infinity value. Double does but can take too much memory
+	private static final int NEGATIVE_INFINITY = -1000000000;//FIXME int in java does not support a real infinity value. Double does but can take too much memory
 
 	/**
 	 * @param seq The DNA fragment
@@ -45,7 +45,7 @@ public class Sequence{
 	 * @param other The other sequence
 	 * @return The matrix needed to compute the score or the resulting consensus.
 	 */
-	private int[][] semiGlobalAlignment(Sequence other){
+	public int[][] semiGlobalAlignment(Sequence other){
 		int m = this.fragment.length();
 		int n = other.fragment.length();
 		int[][] a = new int[m][n];//Score of best alignment ending by the pair Si Tj
@@ -53,6 +53,8 @@ public class Sequence{
 		int[][] c = new int[m][n];//Score of best alignment ending by the pair Si  _
 		//Values in matrices at first
 		a[0][0] = 0;
+		b[0][0] = NEGATIVE_INFINITY;
+		c[0][0] = NEGATIVE_INFINITY;
 		int i, j;
 		for(i=0 ; i<m ; i++){
 			a[i][0] = NEGATIVE_INFINITY;
