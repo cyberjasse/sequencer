@@ -7,7 +7,6 @@ package sequencer;
 public class Sequence{
 	protected String fragment;
 	protected Sequence complementary;
-	private static final int FIRST_GAP_SCORE = -4;//-h TODO choose a good value for -h and -g. See page 67 https://moodle.umons.ac.be/mod/resource/view.php?id=2559
 	private static final int GAP_SCORE = -2;//-g
 	private static final int MATCH_SCORE = 1;
 	private static final int MISMATCH_SCORE = -1;
@@ -69,67 +68,28 @@ public class Sequence{
 	 * @return The matrix needed to compute the score or the resulting consensus.
 	 */
 	public int[][] semiGlobalAlignment(Sequence other){
-		int m = this.fragment.length()+1;
-		int n = other.fragment.length()+1;
-		int[][] a = new int[m][n];//Score of best alignment ending by the pair Si Tj
-		int[][] b = new int[m][n];//Score of best alignment ending by the pair _  Tj
-		int[][] c = new int[m][n];//Score of best alignment ending by the pair Si  _
-		//Values in matrices at first
-		a[0][0] = 0;
-		b[0][0] = NEGATIVE_INFINITY;
-		c[0][0] = NEGATIVE_INFINITY;
+		int m = this.fragment.length();
+		int n = other.fragment.length();
+		int[][] a = new int[m+1][n+1];
+		//Values in matrice at first
 		int i, j;
-		for(i=1 ; i<m ; i++){
-			a[i][0] = NEGATIVE_INFINITY;
-			b[i][0] = NEGATIVE_INFINITY;
-			c[i][0] = FIRST_GAP_SCORE + GAP_SCORE*i;
-		}
-		for(j=1 ; j<n ; j++){
-			a[0][j] = NEGATIVE_INFINITY;
-			b[0][j] = FIRST_GAP_SCORE + GAP_SCORE*j;
-			c[0][j] = NEGATIVE_INFINITY;
-		}
+		for(i=0 ; i<=m ; i++)
+			a[i][0] = 0;
+		for(j=0 ; j<=n ; j++)
+			a[0][j] = 0;
 		//Applied the reccurence with an iterative implementation
 		int score;
-		for(i=1 ; i<m ; i++){
-			for(j=1 ; j<n ; j++){
-				int im1 = i-1, jm1 = j-1;//to not compute them 7 times
-				int hpg = (FIRST_GAP_SCORE+GAP_SCORE);//to not compute it 4 times.
-				if(get(im1) == other.get(jm1)){
+		for(i=1 ; i<=m ; i++){
+			for(j=1 ; j<=n ; j++){
+				int im1 = i-1, jm1 = j-1;//to not compute them 3 times
+				if(this.get(im1) == other.get(jm1))
 					score = MATCH_SCORE;
-				}
-				else{
+				else
 					score = MISMATCH_SCORE;
-				}
-				a[i][j] = score + max(a[im1][jm1], b[im1][jm1], c[im1][jm1]);
-				b[i][j] = max(hpg+a[i][jm1], GAP_SCORE+b[i][jm1], hpg+c[i][jm1]);
-				c[i][j] = max(hpg+a[im1][j], hpg+b[im1][j], GAP_SCORE+c[im1][j]);
-				/*printtab(a,m,n);
-				System.out.println("  ");
-				printtab(b,m,n);
-				System.out.println("  ");
-				printtab(c,m,n);
-				System.out.println(" ------------- ");*/
+				a[i][j] = max(a[im1][j]+GAP_SCORE , a[im1][jm1]+score , a[i][jm1]+GAP_SCORE);
 			}
 		}
-		//Then return matrice containing the score of the best alignment
-		int mm1 = m-1, nm1 = n-1;
-		if(a[mm1][nm1] > b[mm1][nm1]){
-			if(a[mm1][nm1] > c[mm1][nm1]){
-				return a;
-			}
-			else{
-				return c;
-			}
-		}
-		else{
-			if(b[mm1][nm1] > c[mm1][nm1]){
-				return b;
-			}
-			else{
-				return c;
-			}
-		}
+		return a;
 	}
 
 	/**
