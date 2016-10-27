@@ -49,20 +49,6 @@ public class Sequence{
 	}
 
 	/**
-	 * The max method for 3 parameters
-	 */
-	private int max(int a, int b, int c){
-		if(a > b){
-			if(a > c) return a;
-			else return c;
-		}
-		else{
-			if(b > c) return b;
-			else return c;
-		}
-	}
-
-	/**
 	 * Perform the semi global alignment to 2 sequences.
 	 * @param other The other sequence
 	 * @return The matrix needed to compute the score or the resulting consensus.
@@ -77,7 +63,7 @@ public class Sequence{
 			a[i][0] = 0;
 		for(j=0 ; j<=n ; j++)
 			a[0][j] = 0;
-		//Applied the reccurence with an iterative implementation
+		//Applied the recurrence with an iterative implementation
 		int score;
 		for(i=1 ; i<=m ; i++){
 			for(j=1 ; j<=n ; j++){
@@ -86,7 +72,9 @@ public class Sequence{
 					score = MATCH_SCORE;
 				else
 					score = MISMATCH_SCORE;
-				a[i][j] = max(a[im1][j]+GAP_SCORE , a[im1][jm1]+score , a[i][jm1]+GAP_SCORE);
+				a[i][j] = Math.max(a[im1][j]+GAP_SCORE,
+					Math.max(a[im1][jm1]+score,
+					a[i][jm1]+GAP_SCORE));
 			}
 		}
 		return a;
