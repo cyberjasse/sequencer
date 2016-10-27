@@ -93,8 +93,16 @@ public class Sequence{
 	 * @param other The other sequence
 	 * @return The score.
 	 */
-	public int getAlignementScore(Sequence other){
-		return -1;//TODO Jason
+	public int getAlignmentScore(Sequence other){
+		int max = NEGATIVE_INFINITY;
+		int[][] a = semiGlobalAlignment(other);
+		for (int j=0; j<=other.fragment.length(); j++)
+			max = Math.max(a[fragment.length()][j], max);
+		for (int i=0; i<=fragment.length(); i++)
+			max = Math.max(a[i][other.fragment.length()], max);
+		//TODO compute paths and other scores (a^T...)
+		printtab(a, fragment.length()+1, other.fragment.length()+1);
+		return max;
 	}
 
 	/**
@@ -117,5 +125,10 @@ public class Sequence{
 	 */
 	public Sequence getComplementary(){
 		return complementary;
+	}
+
+	@Override
+	public String toString() {
+		return fragment;
 	}
 }

@@ -1,6 +1,10 @@
 package sequencer;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * The main class computing the final consensus
@@ -11,9 +15,16 @@ public class Sequencer{
 	 * Enter the path of the fragments file as first parameter
 	 */
 	public static void main(String args[]){
-		List<Sequence> fragments = load(args[0]);
-		List<Sequence> consensus = getFinalConsensus(fragments);
-		//TODO
+		try {
+			List<Sequence> fragments = load(args[0]);
+			List<Sequence> consensus = getFinalConsensus(fragments);
+			int s = fragments.get(0).getAlignmentScore(fragments.get(1));
+			System.out.println(s);
+		}
+		catch (Exception e) {
+			//TODO
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -22,11 +33,25 @@ public class Sequencer{
 	 * @param name The path of the file
 	 * @return A list of loaded fragments.
 	 */
-	public static List<Sequence> load(String name){
-		//Perhaps a linked list ?
-		List<Sequence> fragments = new ArrayList<Sequence>(150);
-		//131 fragments in collection1.fasta
-		//TODO guillaume
+	public static List<Sequence> load(String name)
+			throws FileNotFoundException, IOException {
+		List<Sequence> fragments = new ArrayList<Sequence>();
+		BufferedReader input = new BufferedReader(new FileReader(name));
+		StringBuilder current_sequence = new StringBuilder();
+		int c;
+		do {
+			c = input.read();
+			if (c==-1 || c == '>') {
+				if (current_sequence.length() > 0) {
+					fragments.add(new Sequence(current_sequence.toString()));
+					current_sequence = new StringBuilder();
+				}
+				if (c == '>')
+					input.readLine(); //trash it
+			}
+			else
+				current_sequence.append(input.readLine());
+		} while (c != -1);
 		return fragments;
 	}
 
