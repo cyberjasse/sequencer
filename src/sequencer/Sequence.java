@@ -101,12 +101,119 @@ public class Sequence{
 	}
 
 	/**
-	 * Compute The score of a semi global alignment.
-	 * @param other The other sequence
-	 * @return The score.
+	 * From the position [i][j] on a alignement matrix (for this and other), return an AlignmentPath path symbol to indicate from where the score on [i][j] comes from
 	 */
-	public int getAlignementScore(Sequence other){
-		return -1;//TODO Jason
+	private byte nextPosition(int i, int j, int[][] matrix, Sequence other){
+		int matchscore;
+		byte where;
+		if(get(i-1)==other.get(j-1))
+			matchscore = MATCH_SCORE;
+		else
+			matchscore = MISMATCH_SCORE;
+		int fromscore = matrix[i-1][j]+GAP_SCORE;
+		where = AlignmentPath.UP;
+		int otherscore = matrix[i-1][j-1]+matchscore;
+		if( otherscore > fromscore){
+			fromscore = otherscore;
+			where = AlignmentPath.LEFT_UP;
+		}
+		otherscore = matrix[i][j-1]+GAP_SCORE;
+		if( otherscore > fromscore){
+			return AlignmentPath.LEFT;
+		}
+		return where;
+	}
+
+	/**
+	 * Compute score of a semi global alignment.
+	 * Let f and g two sequences.
+	 * Let f' and g' the reverted complenmentary of f and g respectively.
+	 * Let score(f g) The score of the semi-global alignement forcing the suffix of f to be aligned with the prefix of g OR f included in g.
+	 * So
+	 * The first AlignmentPath returned contains score(f g)=score(g' f') and path in the alignment matrix.
+	 * The second AlignmentPath returned contains score(g f)=score(f' g') and path.
+	 * @param other g, The second sequence
+	 * @return return two scores with their path in the alignment matrix
+	 */
+	public AlignmentPath[] getAlignementScore(Sequence other){
+		int[][] matrix = semiGlobalAlignment(other);
+		//score(f g)
+		int score = matrix[fragment.length()][1];//length is a field in the String object
+		int start = 1;
+		int i, j;
+		//seatch the score and start position
+		for(j=2 ; j<=other.fragment.length() ; j++){
+			if( matrix[other.fragment.length()][j] > score ){
+				score = matrix[other.fragment.length()][j];
+				start = j;
+			}
+		}
+		//build the path
+		j = start;
+		i = fragment.length();
+		int maxsize = Math.max(fragment.length() , other.fragment.length());
+		byte[] pathfg = new byte[maxsize];
+		int pathsize = 0;
+		byte pathsymbol;
+		while(i>1 && j>1){
+			pathsymbol = nextPosition(i,j,matrix,other);
+			pathfg[pathsize] = pathsymbol;
+			if(pathsymbol == AlignmentPath.UP)
+				i--;
+			else if(pathsymbol == AlignmentPath.LEFT)
+				j--;
+			else{
+				i--;
+				j--;
+			}
+			pathsize++;
+		}
+		int delta;
+		if(j>1)//so i=1, we are on the "first" line
+			delta = -j;
+		else
+			delta = i;
+		//build the AlignementPath for score(f g)
+		AlignmentPath[] paths = new AlignmentPath[2];
+		paths[0] = new AlignmentPath(score,start,delta,pathfg,pathsize);
+		//score(g f)
+		score = matrix[1][other.fragment.length()];
+		start = 1;
+		//search the start position
+		for(i=2 ; i<fragment.length() ; i++){
+			if(matrix[i][other.fragment.length()] > score){
+				score = matrix[i][other.fragment.length()];
+				start = i;
+			}
+		}
+		//build the path but with a transpose matrix.
+		//I don't really transpose matrix. I just replace LEFT by UP and vice-versa
+		byte[] pathgf = new byte[maxsize];
+		pathsize = 0;
+		while(j>0 && j>0){
+			pathsymbol = nextPosition(i,j,matrix,other);
+			if(pathsymbol == AlignmentPath.UP){
+				pathgf[pathsize] = AlignmentPath.LEFT;
+				i--;
+			}
+			else if(pathsymbol == AlignmentPath.LEFT){
+				pathgf[pathsize] = AlignmentPath.UP;
+				j--;
+			}
+			else{
+				pathgf[pathsize] = pathsymbol;
+				i--;
+				j--;
+			}
+			pathsize++;
+		}
+		if(i>1)//so j=1, we are on the "first" line of the transpose matrix
+			delta = -i;
+		else
+			delta = j;
+		//build the AlignementPath for score(g f)
+		paths[1] = new AlignmentPath(score,start,delta,pathgf,pathsize);
+		return paths;
 	}
 
 	/**
