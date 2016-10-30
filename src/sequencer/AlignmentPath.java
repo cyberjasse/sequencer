@@ -40,4 +40,17 @@ public class AlignmentPath{
 		this.path  = path;
 		this.pathlength = pathLength;
 	}
+
+	public String toString(){
+		String text="start "+start+" then";
+		for(int i=0; i<pathlength ; i++){
+			switch(path[i]){
+				case LEFT : text+=" L,";break;
+				case LEFT_UP : text+=" D,";break;
+				case UP: text+=" U,";break;
+			}
+		}
+		text+=" delta="+delta;
+		return text;
+	}
 }
