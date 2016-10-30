@@ -137,7 +137,6 @@ public class Sequence{
 	 */
 	public AlignmentPath[] getAlignmentScore(Sequence other){
 		int[][] matrix = semiGlobalAlignment(other);
-	printtab(matrix,fragment.length()+1,other.fragment.length()+1);
 		//score(f g)
 		int score = matrix[fragment.length()][1];//length is a field in the String object
 		int start = 1;
