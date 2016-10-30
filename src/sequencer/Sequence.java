@@ -135,16 +135,17 @@ public class Sequence{
 	 * @param other g, The second sequence
 	 * @return return two scores with their path in the alignment matrix
 	 */
-	public AlignmentPath[] getAlignementScore(Sequence other){
+	public AlignmentPath[] getAlignmentScore(Sequence other){
 		int[][] matrix = semiGlobalAlignment(other);
+	printtab(matrix,fragment.length()+1,other.fragment.length()+1);
 		//score(f g)
 		int score = matrix[fragment.length()][1];//length is a field in the String object
 		int start = 1;
 		int i, j;
-		//seatch the score and start position
+		//search the score and start position
 		for(j=2 ; j<=other.fragment.length() ; j++){
-			if( matrix[other.fragment.length()][j] > score ){
-				score = matrix[other.fragment.length()][j];
+			if( matrix[fragment.length()][j] > score ){
+				score = matrix[fragment.length()][j];
 				start = j;
 			}
 		}
@@ -189,8 +190,10 @@ public class Sequence{
 		//build the path but with a transpose matrix.
 		//I don't really transpose matrix. I just replace LEFT by UP and vice-versa
 		byte[] pathgf = new byte[maxsize];
+		i = start;
+		j = other.fragment.length();
 		pathsize = 0;
-		while(j>0 && j>0){
+		while(i>1 && j>1){
 			pathsymbol = nextPosition(i,j,matrix,other);
 			if(pathsymbol == AlignmentPath.UP){
 				pathgf[pathsize] = AlignmentPath.LEFT;
