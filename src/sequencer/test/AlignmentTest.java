@@ -37,14 +37,27 @@ public class AlignmentTest{
 	}
 
 	@Test
-	public void pathTest(){
+	public void pathfgTest(){
+		AlignmentPath ap = s1.getAlignmentScore(s2)[0];
+		byte[] expected = {D,D};
+		assertArrayEquals(expected, compact(ap));
+	}
+
+	@Test
+	public void deltafgTest(){
+		AlignmentPath ap = s1.getAlignmentScore(s2)[0];
+		assertEquals(16, ap.delta);
+	}
+
+	@Test
+	public void pathgfTest(){
 		AlignmentPath ap = s1.getAlignmentScore(s2)[1];
 		byte[] expected = {D,D,D,D,D,U,D};//The exemple in slide page 63
 		assertArrayEquals(expected, compact(ap));
 	}
 
 	@Test
-	public void deltaTest(){
+	public void deltagfTest(){
 		AlignmentPath ap = s1.getAlignmentScore(s2)[1];
 		assertEquals(-4, ap.delta);
 	}
