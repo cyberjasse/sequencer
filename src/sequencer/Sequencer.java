@@ -11,9 +11,49 @@ public class Sequencer{
 	 * Enter the path of the fragments file as first parameter
 	 */
 	public static void main(String args[]){
-		List<Sequence> fragments = load(args[0]);
-		List<Sequence> consensus = getFinalConsensus(fragments);
-		//TODO
+		Sequence s1 = new Sequence("cagcacttggattctcgg");
+		Sequence s2 = new Sequence("cagcgtgg");
+		System.out.println( s1.getAlignmentScore(s2)[1].toString() );
+	}
+
+	/**
+	 * Compute all AlignmentPath
+	 * @param fragments The list of Sequence, like returned by the load() method
+	 * @return A list of all edges between all pairs of Sequence in fragments and their reverted complementary.
+	 */
+	public List<Edge> allEdges(List<Sequence> fragments){//TODO Paralelize
+		int i,j;
+		//build nodes
+		Node[] nodes = new Node[fragments.size()];
+		for(i=0 ; i<fragments.size() ; i++){
+			Node n = new Node(fragments.get(i));
+			nodes[i] = n;
+		}
+		//TODO check if the size of deges defined below is correct
+		ArrayList<Edge> edges = new ArrayList<Edge>(3*(fragments.size()*fragments.size() - fragments.size()));//Because Let N the fragments length, they are N*N-N pairs of {f,g}or{g,f} f!=g. Then 3X because of pairs {f g'}or{g f'} and {f' g'}or{g' f'}
+		//build all edges
+		for(i=0; i<fragments.size() ; i++){
+			for(j=i+1 ; j<fragments.size() ; j++){
+				//nodes[i] is f, nodes[j] is g
+				AlignmentPath[] aps = nodes[i].sequence.getAlignmentScore(nodes[j].sequence);
+				edges.add(new Edge( nodes[i],nodes[j],aps[0] ));//add {f,g}
+				edges.add(new Edge( nodes[j],nodes[i],aps[1] ));//add {g,f}
+				edges.add(new Edge( nodes[j].complementary,nodes[i].complementary,aps[0] ));//add {g',f'}
+				edges.add(new Edge( nodes[i].complementary,nodes[j].complementary,aps[1] ));//add {f',g'}
+			}
+		}
+		return edges;
+	}
+
+	/**
+	 * Compute the hamiltonian path
+	 * @param edges The list of all edges
+	 * @return The list of ordered edges, the entire hamiltonian path.
+	 */
+	public static List<Edge> hamiltonian(List<Edge> edges){
+		//TODO jason
+		List<Edge> hamiltonian = null;
+		return hamiltonian;
 	}
 
 	/**
@@ -42,13 +82,36 @@ public class Sequencer{
 	}
 
 	/**
-	 * A node of the graph used for getFinalConsensus()
+	 * A Node of the graph used for the hamiltonian path research
+	 */
+	private class Node{
+		public boolean in;
+		public boolean out;
+		public final Sequence sequence;
+		/**The node containing the reverted complementary of sequence*/
+		public final Node complementary;
+		private Node(Sequence s, Node comp){
+			in = false;
+			out = false;
+			sequence = s;
+			complementary = comp;
+		}
+		public Node(Sequence s){
+			in = false;
+			out = false;
+			sequence = s;
+			complementary = new Node(s.getComplementary(), this);
+		}
+	}
+
+	/**
+	 * A edge of the graph used for the hamiltonian path research
 	 */
 	private class Edge{
-		public final int from;
-		public final int to;
-		public final int weight;
-		public Edge(int f, int t, int w){
+		public final Node from;
+		public final Node to;
+		public final AlignmentPath weight;
+		public Edge(Node f, Node t, AlignmentPath w){
 			from = f;
 			to = t;
 			weight = w;
