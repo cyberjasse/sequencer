@@ -11,9 +11,15 @@ public class Sequencer{
 	 * Enter the path of the fragments file as first parameter
 	 */
 	public static void main(String args[]){
-		Sequence s1 = new Sequence("cagcacttggattctcgg");
-		Sequence s2 = new Sequence("cagcgtgg");
-		System.out.println( s1.getAlignmentScore(s2)[1].toString() );
+		Sequence s1 = new Sequence("at");
+		Sequence s2 = new Sequence("tc");
+		Sequence s3 = new Sequence("cg");
+		ArrayList<Sequence> l = new ArrayList<Sequence>(3);
+		l.add(s1);
+		l.add(s2);
+		l.add(s3);
+		Sequencer s = new Sequencer();
+		s.allEdges(l);
 	}
 
 	/**
@@ -30,7 +36,7 @@ public class Sequencer{
 			nodes[i] = n;
 		}
 		//TODO check if the size of deges defined below is correct
-		ArrayList<Edge> edges = new ArrayList<Edge>(3*(fragments.size()*fragments.size() - fragments.size()));//Because Let N the fragments length, they are N*N-N pairs of {f,g}or{g,f} f!=g. Then 3X because of pairs {f g'}or{g f'} and {f' g'}or{g' f'}
+		ArrayList<Edge> edges = new ArrayList<Edge>(2*(fragments.size()*fragments.size() - fragments.size()));//Because Let N the fragments length, they are N*N-N pairs of {f,g}or{g,f} f!=g. Then 2X because we add pairs {f' g'}or{g' f'}
 		//build all edges
 		for(i=0; i<fragments.size() ; i++){
 			for(j=i+1 ; j<fragments.size() ; j++){
