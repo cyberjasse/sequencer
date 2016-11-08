@@ -16,14 +16,6 @@ public class AlignmentTest{
 	static private Sequence s2;
 	static private byte U=AlignmentPath.UP, L=AlignmentPath.LEFT, D=AlignmentPath.LEFT_UP;//
 
-	private byte[] compact(AlignmentPath ap){
-		byte[] newtab = new byte[ap.pathlength];
-		for(int i=0 ; i<ap.pathlength ; i++){
-			newtab[i] = ap.path[i];
-		}
-		return newtab;
-	}
-
 	@BeforeClass
 	public static void beforeClass(){
 		s1 = new Sequence("cagcacttggattctcgg");
@@ -40,7 +32,8 @@ public class AlignmentTest{
 	public void pathfgTest(){
 		AlignmentPath ap = s1.getAlignmentScore(s2)[0];
 		byte[] expected = {D,D};
-		assertArrayEquals(expected, compact(ap));
+		ap.compact();
+		assertArrayEquals(expected, ap.path);
 	}
 
 	@Test
@@ -53,7 +46,8 @@ public class AlignmentTest{
 	public void pathgfTest(){
 		AlignmentPath ap = s1.getAlignmentScore(s2)[1];
 		byte[] expected = {D,D,D,D,D,U,D};//The exemple in slide page 63
-		assertArrayEquals(expected, compact(ap));
+		ap.compact();
+		assertArrayEquals(expected, ap.path);
 	}
 
 	@Test

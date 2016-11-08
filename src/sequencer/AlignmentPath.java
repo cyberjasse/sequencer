@@ -22,7 +22,7 @@ public class AlignmentPath{
 	/**Symbols used to describe the path*/
 	public static final byte LEFT=1, LEFT_UP=2, UP=3;
 	/**The path. A list of symbols {LEFT, LEFT_UP, UP)*/
-	public final byte[] path;
+	public byte[] path;
 	/**The number of symbols in path*/
 	public final int pathlength;
 
@@ -52,5 +52,13 @@ public class AlignmentPath{
 		}
 		text+=" delta="+delta;
 		return text;
+	}
+
+	public void compact(){
+		byte[] newtab = new byte[pathlength];
+		for(int i=0 ; i<pathlength ; i++){
+			newtab[i] = path[i];
+		}
+		path = newtab;
 	}
 }
