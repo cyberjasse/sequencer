@@ -27,7 +27,7 @@ public class Sequencer{
 	 * @param fragments The list of Sequence, like returned by the load() method
 	 * @return A list of all edges between all pairs of Sequence in fragments and their reverted complementary.
 	 */
-	public List<Edge> allEdges(List<Sequence> fragments){//TODO Paralelize
+	public static List<Edge> allEdges(List<Sequence> fragments){//TODO Paralelize
 		int i,j;
 		//build nodes
 		Node[] nodes = new Node[fragments.size()];
@@ -90,7 +90,7 @@ public class Sequencer{
 	/**
 	 * A Node of the graph used for the hamiltonian path research
 	 */
-	private class Node{
+	private final static class Node{
 		public boolean in;
 		public boolean out;
 		public final Sequence sequence;
@@ -113,7 +113,7 @@ public class Sequencer{
 	/**
 	 * A edge of the graph used for the hamiltonian path research
 	 */
-	private class Edge{
+	private final static class Edge{
 		public final Node from;
 		public final Node to;
 		public final AlignmentPath weight;
