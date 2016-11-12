@@ -36,7 +36,7 @@ public class Sequencer{
 			nodes[i] = n;
 		}
 		//TODO check if the size of deges defined below is correct
-		ArrayList<Edge> edges = new ArrayList<Edge>(2*(fragments.size()*fragments.size() - fragments.size()));//Because Let N the fragments length, they are N*N-N pairs of {f,g}or{g,f} f!=g. Then 2X because we add pairs {f' g'}or{g' f'}
+		ArrayList<Edge> edges = new ArrayList<Edge>(4*((fragments.size()*fragments.size()) - fragments.size()));
 		//build all edges
 		for(i=0; i<fragments.size() ; i++){
 			for(j=i+1 ; j<fragments.size() ; j++){
@@ -46,6 +46,11 @@ public class Sequencer{
 				edges.add(new Edge( nodes[j],nodes[i],aps[1] ));//add {g,f}
 				edges.add(new Edge( nodes[j].complementary,nodes[i].complementary,aps[0] ));//add {g',f'}
 				edges.add(new Edge( nodes[i].complementary,nodes[j].complementary,aps[1] ));//add {f',g'}
+				AlignmentPath[] aps2 = nodes[i].sequence.getAlignmentScore(nodes[j].complementary.sequence);
+				edges.add(new Edge( nodes[i], nodes[j].complementary, aps[0] ));//add {f,g'}
+				edges.add(new Edge( nodes[j].complementary, nodes[i], aps[1] ));//add {g',f}
+				edges.add(new Edge( nodes[j], nodes[i].complementary, aps[0] ));//add {g,f'}
+				edges.add(new Edge( nodes[i].complementary, nodes[j], aps[1] ));//add {f',g}
 			}
 		}
 		return edges;
