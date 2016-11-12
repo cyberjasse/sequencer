@@ -26,31 +26,26 @@ public class Sequencer{
 	 * Compute all AlignmentPath
 	 * @param fragments The list of Sequence, like returned by the load() method
 	 * @return A list of all edges between all pairs of Sequence in fragments and their reverted complementary.
+	 * If the length of fragments is N, then N+i is the reverted complementary of the ith fragment. Indexed from 0.
 	 */
 	public static List<Edge> allEdges(List<Sequence> fragments){//TODO Paralelize
 		int i,j;
-		//build nodes
-		Node[] nodes = new Node[fragments.size()];
-		for(i=0 ; i<fragments.size() ; i++){
-			Node n = new Node(fragments.get(i));
-			nodes[i] = n;
-		}
-		//TODO check if the size of deges defined below is correct
-		ArrayList<Edge> edges = new ArrayList<Edge>(4*((fragments.size()*fragments.size()) - fragments.size()));
+		int N = fragments.size();
+		ArrayList<Edge> edges = new ArrayList<Edge>(4*((N*N) - N));
 		//build all edges
-		for(i=0; i<fragments.size() ; i++){
-			for(j=i+1 ; j<fragments.size() ; j++){
-				//nodes[i] is f, nodes[j] is g
-				AlignmentPath[] aps = nodes[i].sequence.getAlignmentScore(nodes[j].sequence);
-				edges.add(new Edge( nodes[i],nodes[j],aps[0] ));//add {f,g}
-				edges.add(new Edge( nodes[j],nodes[i],aps[1] ));//add {g,f}
-				edges.add(new Edge( nodes[j].complementary,nodes[i].complementary,aps[0] ));//add {g',f'}
-				edges.add(new Edge( nodes[i].complementary,nodes[j].complementary,aps[1] ));//add {f',g'}
-				AlignmentPath[] aps2 = nodes[i].sequence.getAlignmentScore(nodes[j].complementary.sequence);
-				edges.add(new Edge( nodes[i], nodes[j].complementary, aps[0] ));//add {f,g'}
-				edges.add(new Edge( nodes[j].complementary, nodes[i], aps[1] ));//add {g',f}
-				edges.add(new Edge( nodes[j], nodes[i].complementary, aps[0] ));//add {g,f'}
-				edges.add(new Edge( nodes[i].complementary, nodes[j], aps[1] ));//add {f',g}
+		for(i=0; i<N ; i++){
+			for(j=i+1 ; j<N ; j++){
+				//i is f, j is g. i+N is f', j+N is g'
+				AlignmentPath[] aps = fragments.get(i).getAlignmentScore(fragments.get(j));
+				edges.add(new Edge( i, j, aps[0] ));//add {f,g}
+				edges.add(new Edge( j, i, aps[1] ));//add {g,f}
+				edges.add(new Edge( j+N, i+N, aps[0] ));//add {g',f'}
+				edges.add(new Edge( i+N, j+N, aps[1] ));//add {f',g'}
+				AlignmentPath[] aps2 = fragments.get(i).getAlignmentScore(fragments.get(j).getComplementary());
+				edges.add(new Edge( i, j+N, aps[0] ));//add {f,g'}
+				edges.add(new Edge( j+N, i, aps[1] ));//add {g',f}
+				edges.add(new Edge( j, i+N, aps[0] ));//add {g,f'}
+				edges.add(new Edge( i+N, j, aps[1] ));//add {f',g}
 			}
 		}
 		return edges;
@@ -93,36 +88,15 @@ public class Sequencer{
 	}
 
 	/**
-	 * A Node of the graph used for the hamiltonian path research
-	 */
-	private final static class Node{
-		public boolean in;
-		public boolean out;
-		public final Sequence sequence;
-		/**The node containing the reverted complementary of sequence*/
-		public final Node complementary;
-		private Node(Sequence s, Node comp){
-			in = false;
-			out = false;
-			sequence = s;
-			complementary = comp;
-		}
-		public Node(Sequence s){
-			in = false;
-			out = false;
-			sequence = s;
-			complementary = new Node(s.getComplementary(), this);
-		}
-	}
-
-	/**
 	 * A edge of the graph used for the hamiltonian path research
+	 * The value of from and to is an identifier of a Sequence.
+	 * If there are N sequences, then N+i is the reverted complementary of the ith sequence. Indexed from 0.
 	 */
 	private final static class Edge{
-		public final Node from;
-		public final Node to;
+		public final int from;
+		public final int to;
 		public final AlignmentPath weight;
-		public Edge(Node f, Node t, AlignmentPath w){
+		public Edge(int f, int t, AlignmentPath w){
 			from = f;
 			to = t;
 			weight = w;
