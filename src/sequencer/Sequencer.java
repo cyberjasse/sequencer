@@ -58,7 +58,7 @@ public class Sequencer{
 	 * Compute the hamiltonian path
 	 * @param edges The list of all edges
 	 * @param nSequences The number of sequences (not including reverted complementary)
-	 * @return The list of ordered edges, the entire hamiltonian path.
+	 * @return The entire hamiltonian path. This list is not ordered !!
 	 */
 	public static List<Edge> hamiltonian(List<Edge> edges, int nSequences){
 		int totalN = 2*nSequences;
