@@ -42,7 +42,7 @@ public class AlignmentPath{
 	}
 
 	public String toString(){
-		String text="start "+start+" then";
+		String text="WEIGHT="+score+". start "+start+" then";
 		for(int i=0; i<pathlength ; i++){
 			switch(path[i]){
 				case LEFT : text+=" L,";break;

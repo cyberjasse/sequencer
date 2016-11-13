@@ -1,6 +1,9 @@
 package sequencer;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.Comparable;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * The main class computing the final consensus
@@ -11,15 +14,15 @@ public class Sequencer{
 	 * Enter the path of the fragments file as first parameter
 	 */
 	public static void main(String args[]){
-		Sequence s1 = new Sequence("at");
+		/*Sequence s1 = new Sequence("at");
 		Sequence s2 = new Sequence("tc");
 		Sequence s3 = new Sequence("cg");
 		ArrayList<Sequence> l = new ArrayList<Sequence>(3);
 		l.add(s1);
 		l.add(s2);
 		l.add(s3);
-		Sequencer s = new Sequencer();
-		s.allEdges(l);
+		List<Edge> alle = allEdges(l);
+		List<Edge> hamil = hamiltonian(alle, l.size());*/
 	}
 
 	/**
@@ -54,11 +57,49 @@ public class Sequencer{
 	/**
 	 * Compute the hamiltonian path
 	 * @param edges The list of all edges
+	 * @param nSequences The number of sequences (not including reverted complementary)
 	 * @return The list of ordered edges, the entire hamiltonian path.
 	 */
-	public static List<Edge> hamiltonian(List<Edge> edges){
-		//TODO jason
-		List<Edge> hamiltonian = null;
+	public static List<Edge> hamiltonian(List<Edge> edges, int nSequences){
+		int totalN = 2*nSequences;
+		boolean[] in = new boolean[totalN];
+		boolean[] out = new boolean[totalN];
+		for(int i=0 ; i<totalN ; i++){
+			in[i] = false;
+			out[i] = false;
+		}
+		UnionFind uf = new UnionFind(totalN);
+		Comparator<Edge> comparator = Collections.reverseOrder();
+		Collections.sort(edges, comparator);
+		ArrayList<Edge> hamiltonian = new ArrayList<Edge>( nSequences-1);
+		for(Edge e : edges){
+			if(	!in[e.to] && !out[e.from]){
+				int rootFrom = uf.find(e.from);
+				int rootTo = uf.find(e.to);
+				if( rootFrom != rootTo){
+					hamiltonian.add(e);
+					in[e.to]=true;
+					out[e.from]=true;
+					//if the in and out of their complementary is true, they will never be taken
+					int compIndex;
+					if(e.from < nSequences) compIndex = e.from + nSequences;
+					else compIndex = e.from - nSequences;
+					in[compIndex] = true;
+					out[compIndex] = true;
+					uf.ignore(compIndex);
+					if(e.to < nSequences) compIndex = e.to + nSequences;
+					else compIndex = e.to - nSequences;
+					in[compIndex] = true;
+					out[compIndex] = true;
+					uf.ignore(compIndex);
+					uf.directUnion(rootFrom, rootTo);
+				}
+			}
+			if(uf.getNsets() == 1){
+				break;
+			}
+		}
+		if(uf.getNsets() != 1)System.out.println("No hamiltonian! there are "+uf.getNsets()+" sets");	
 		return hamiltonian;
 	}
 
@@ -92,7 +133,7 @@ public class Sequencer{
 	 * The value of from and to is an identifier of a Sequence.
 	 * If there are N sequences, then N+i is the reverted complementary of the ith sequence. Indexed from 0.
 	 */
-	private final static class Edge{
+	public final static class Edge implements Comparable<Edge>{
 		public final int from;
 		public final int to;
 		public final AlignmentPath weight;
@@ -100,6 +141,10 @@ public class Sequencer{
 			from = f;
 			to = t;
 			weight = w;
+		}
+		@Override
+		public int compareTo(Edge e){
+			return this.weight.score - e.weight.score;
 		}
 	}
 }

@@ -8,6 +8,8 @@ public class UnionFind{
 	private int[] parent;
 	/** The number of nodes*/
 	private final int N;
+	/** The number of sets*/
+	private int nSets;
 
 	/**
 	 * Create {{i}|0<=i<Nnodes}
@@ -16,6 +18,7 @@ public class UnionFind{
 	public UnionFind(int Nnodes){
 		N = Nnodes;
 		parent = new int[N];
+		nSets = N;
 		for(int i=0 ; i<N ; i++){
 			parent[i] = i;
 		}
@@ -37,6 +40,34 @@ public class UnionFind{
 	public void union(int x, int y){
 		int px = find(x);
 		int py = find(y);
-		parent[px] = py;
+		directUnion(px, py);
+	}
+
+	/**
+	 * Union two sets providing their root
+	 * @param rootx The root of a set
+	 * @param rooty The root of another set
+	 */
+	public void directUnion(int rootx, int rooty){
+		parent[rootx] = rooty;
+		nSets--;
+	}
+
+	/**
+	 * Ignore the node x. It sets is parent to -1 and decrement the number of sets.
+	 * The user have to ensure that the set containing x has a cardinality of 1. And it will not be used anymore.
+	 */
+	public void ignore(int x){
+		if(parent[x] != -1){
+			parent[x] = -1;
+			nSets--;
+		}
+	}
+
+	/**
+	 * @return The number of sets
+	 */
+	public int getNsets(){
+		return nSets;
 	}
 }
