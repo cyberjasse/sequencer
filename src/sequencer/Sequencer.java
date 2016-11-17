@@ -4,6 +4,7 @@ import java.util.List;
 import java.lang.Comparable;
 import java.util.Collections;
 import java.util.Comparator;
+import java.lang.Runnable;
 
 /**
  * The main class computing the final consensus
@@ -14,29 +15,20 @@ public class Sequencer{
 	 * Enter the path of the fragments file as first parameter
 	 */
 	public static void main(String args[]){
-		/*Sequence s1 = new Sequence("at");
-		Sequence s2 = new Sequence("tc");
-		Sequence s3 = new Sequence("cg");
-		ArrayList<Sequence> l = new ArrayList<Sequence>(3);
-		l.add(s1);
-		l.add(s2);
-		l.add(s3);
-		List<Edge> alle = allEdges(l);
-		List<Edge> hamil = hamiltonian(alle, l.size());*/
 	}
 
 	/**
-	 * Compute all AlignmentPath
-	 * @param fragments The list of Sequence, like returned by the load() method
-	 * @return A list of all edges between all pairs of Sequence in fragments and their reverted complementary.
-	 * If the length of fragments is N, then N+i is the reverted complementary of the ith fragment. Indexed from 0.
+	 * Compute a part of all AlignmenPath
+	 * @param divisor How much the work is divided. It computes 1/divisor of all paths
+	 * @param part What part of the work to compute. Indexed from 0
+	 * @param fragments
+	 * @param edges The list to add edges
 	 */
-	public static List<Edge> allEdges(List<Sequence> fragments){//TODO Paralelize
+	private static void computeEdges(int divisor, int part, List<Sequence> fragments, ArrayList<Edge> edges){
+		System.out.println("thread "+part+" START");
 		int i,j;
 		int N = fragments.size();
-		ArrayList<Edge> edges = new ArrayList<Edge>(4*((N*N) - N));
-		//build all edges
-		for(i=0; i<N ; i++){
+		for(i=part; i<N ; i+=divisor){
 			for(j=i+1 ; j<N ; j++){
 				//i is f, j is g. i+N is f', j+N is g'
 				AlignmentPath[] aps = fragments.get(i).getAlignmentScore(fragments.get(j));
@@ -49,6 +41,44 @@ public class Sequencer{
 				edges.add(new Edge( j+N, i, aps[1] ));//add {g',f}
 				edges.add(new Edge( j, i+N, aps[0] ));//add {g,f'}
 				edges.add(new Edge( i+N, j, aps[1] ));//add {f',g}
+			}
+		}
+		System.out.println("thread "+part+" END");
+	}
+
+	/**
+	 * Compute all AlignmentPath
+	 * @param fragments The list of Sequence, like returned by the load() method
+	 * @param nThreads The number of threads to use.
+	 * @return A list of all edges between all pairs of Sequence in fragments and their reverted complementary.
+	 * If the length of fragments is N, then N+i is the reverted complementary of the ith fragment. Indexed from 0.
+	 */
+	public static List<Edge> allEdges(List<Sequence> fragments, int nThreads){//TODO Paralelize
+		ArrayList<Edge> edges = new ArrayList<Edge>(4*((fragments.size()*fragments.size()) - fragments.size()));
+		//build all edges
+		if(nThreads == 1){
+			computeEdges(nThreads, 0, fragments, edges);
+		}
+		else{
+			Thread[] threads = new Thread[nThreads-1];
+			int i;
+			//Create and launch remaining threads
+			for(i=0 ; i<nThreads-1 ; i++){
+				threads[i] = new Thread(new EdgeComputer(fragments, edges, nThreads, i+1));//Constructor of Thread can take a name as parameter
+				threads[i].start();
+			}
+			computeEdges(nThreads, 0, fragments, edges);
+			//And wait they finish
+			try{
+				for(i=0 ; i<nThreads-1 ; i++){
+					threads[i].join();
+				}
+			} catch(InterruptedException e){
+				System.out.println("interrupted");
+				for(i=0 ; i<nThreads-1 ; i++){
+					threads[i].interrupt();
+				}
+				Thread.currentThread().interrupt();
 			}
 		}
 		return edges;
@@ -145,6 +175,31 @@ public class Sequencer{
 		@Override
 		public int compareTo(Edge e){
 			return this.weight.score - e.weight.score;
+		}
+	}
+
+	/**
+	 * A thread to compute a part of all weights between edges
+	 */
+	private final static class EdgeComputer implements Runnable{
+		private final List<Sequence> fragments;
+		/**Means how much the work is distributed to thread. Also means the number of thread used for the entire work*/
+		private final int divisor;
+		/**What part of the work to compute*/
+		private final int part;
+		/**The list to add computed edges*/
+		private final ArrayList<Edge> edges;
+		
+		public EdgeComputer(List<Sequence> in, ArrayList<Edge> out, int nThreads, int part){
+			fragments = in;
+			edges = out;
+			divisor = nThreads;
+			this.part = part;
+		}
+
+		@Override
+		public void run(){
+			computeEdges(divisor, part, fragments, edges);
 		}
 	}
 }
