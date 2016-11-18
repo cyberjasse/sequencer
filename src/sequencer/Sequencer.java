@@ -1,6 +1,10 @@
 package sequencer;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.Comparable;
 import java.util.Collections;
 import java.util.Comparator;
@@ -85,10 +89,10 @@ public class Sequencer{
 	}
 
 	/**
-	 * Compute the hamiltonian path
+	 * Compute the Hamiltonian path
 	 * @param edges The list of all edges
 	 * @param nSequences The number of sequences (not including reverted complementary)
-	 * @return The entire hamiltonian path. This list is not ordered !!
+	 * @return The entire Hamiltonian path. This list is not ordered!
 	 */
 	public static List<Edge> hamiltonian(List<Edge> edges, int nSequences){
 		int totalN = 2*nSequences;
@@ -112,13 +116,17 @@ public class Sequencer{
 					out[e.from]=true;
 					//if the in and out of their complementary is true, they will never be taken
 					int compIndex;
-					if(e.from < nSequences) compIndex = e.from + nSequences;
-					else compIndex = e.from - nSequences;
+					if(e.from < nSequences)
+						compIndex = e.from + nSequences;
+					else
+						compIndex = e.from - nSequences;
 					in[compIndex] = true;
 					out[compIndex] = true;
 					uf.ignore(compIndex);
-					if(e.to < nSequences) compIndex = e.to + nSequences;
-					else compIndex = e.to - nSequences;
+					if(e.to < nSequences)
+						compIndex = e.to + nSequences;
+					else
+						compIndex = e.to - nSequences;
 					in[compIndex] = true;
 					out[compIndex] = true;
 					uf.ignore(compIndex);
@@ -129,7 +137,8 @@ public class Sequencer{
 				break;
 			}
 		}
-		if(uf.getNsets() != 1)System.out.println("No hamiltonian! there are "+uf.getNsets()+" sets");	
+		if(uf.getNsets() != 1)
+			System.out.println("No Hamiltonian path: "+uf.getNsets()+" sets!");
 		return hamiltonian;
 	}
 
@@ -139,11 +148,25 @@ public class Sequencer{
 	 * @param name The path of the file
 	 * @return A list of loaded fragments.
 	 */
-	public static List<Sequence> load(String name){
-		//Perhaps a linked list ?
-		List<Sequence> fragments = new ArrayList<Sequence>(150);
-		//131 fragments in collection1.fasta
-		//TODO guillaume
+	public static List<Sequence> load(String name)
+			throws FileNotFoundException, IOException {
+		List<Sequence> fragments = new ArrayList<Sequence>();
+		BufferedReader input = new BufferedReader(new FileReader(name));
+		StringBuilder current_sequence = new StringBuilder();
+		int c;
+		do {
+			c = input.read();
+			if (c==-1 || c == '>') {
+				if (current_sequence.length() > 0) {
+					fragments.add(new Sequence(current_sequence.toString()));
+					current_sequence = new StringBuilder();
+				}
+				if (c == '>')
+					input.readLine(); //trash it
+			}
+			else
+				current_sequence.append(input.readLine());
+		} while (c != -1);
 		return fragments;
 	}
 

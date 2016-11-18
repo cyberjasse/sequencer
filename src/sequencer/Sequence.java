@@ -49,20 +49,6 @@ public class Sequence{
 	}
 
 	/**
-	 * The max method for 3 parameters
-	 */
-	private int max(int a, int b, int c){
-		if(a > b){
-			if(a > c) return a;
-			else return c;
-		}
-		else{
-			if(b > c) return b;
-			else return c;
-		}
-	}
-
-	/**
 	 * Perform the semi global alignment to 2 sequences.
 	 * @param other The other sequence
 	 * @return The matrix needed to compute the score or the resulting consensus.
@@ -77,7 +63,7 @@ public class Sequence{
 			a[i][0] = 0;
 		for(j=0 ; j<=n ; j++)
 			a[0][j] = 0;
-		//Applied the reccurence with an iterative implementation
+		//Applied the recurrence with an iterative implementation
 		int score;
 		for(i=1 ; i<=m ; i++){
 			for(j=1 ; j<=n ; j++){
@@ -86,7 +72,9 @@ public class Sequence{
 					score = MATCH_SCORE;
 				else
 					score = MISMATCH_SCORE;
-				a[i][j] = max(a[im1][j]+GAP_SCORE , a[im1][jm1]+score , a[i][jm1]+GAP_SCORE);
+				a[i][j] = Math.max(a[im1][j]+GAP_SCORE,
+					Math.max(a[im1][jm1]+score,
+					a[i][jm1]+GAP_SCORE));
 			}
 		}
 		return a;
@@ -127,8 +115,8 @@ public class Sequence{
 	/**
 	 * Compute score of a semi global alignment.
 	 * Let f and g two sequences.
-	 * Let f' and g' the reverted complenmentary of f and g respectively.
-	 * Let score(f g) The score of the semi-global alignement forcing the suffix of f to be aligned with the prefix of g OR f included in g.
+	 * Let f' and g' the reverted complementary of f and g respectively.
+	 * Let score(f g) The score of the semi-global alignment forcing the suffix of f to be aligned with the prefix of g OR f included in g.
 	 * So
 	 * The first AlignmentPath returned contains score(f g)=score(g' f') and path in the alignment matrix.
 	 * The second AlignmentPath returned contains score(g f)=score(f' g') and path.
@@ -173,7 +161,7 @@ public class Sequence{
 			delta = -j;
 		else
 			delta = i;
-		//build the AlignementPath for score(f g)
+		//build the AlignmentPath for score(f g)
 		AlignmentPath[] paths = new AlignmentPath[2];
 		paths[0] = new AlignmentPath(score,start,delta,pathfg,pathsize);
 		//score(g f)
@@ -187,7 +175,7 @@ public class Sequence{
 			}
 		}
 		//build the path but with a transpose matrix.
-		//I don't really transpose matrix. I just replace LEFT by UP and vice-versa
+		//there's no need to really transpose it, we just swap LEFT and UP.
 		byte[] pathgf = new byte[maxsize];
 		i = start;
 		j = other.fragment.length();
@@ -213,7 +201,7 @@ public class Sequence{
 			delta = -i;
 		else
 			delta = j;
-		//build the AlignementPath for score(g f)
+		//build the AlignmentPath for score(g f)
 		paths[1] = new AlignmentPath(score,start,delta,pathgf,pathsize);
 		return paths;
 	}
@@ -238,5 +226,10 @@ public class Sequence{
 	 */
 	public Sequence getComplementary(){
 		return complementary;
+	}
+
+	@Override
+	public String toString() {
+		return fragment;
 	}
 }
