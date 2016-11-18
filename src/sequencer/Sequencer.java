@@ -29,7 +29,7 @@ public class Sequencer{
 	 * @param edges The list to add edges
 	 */
 	private static void computeEdges(int divisor, int part, List<Sequence> fragments, ArrayList<Edge> edges){
-		System.out.println("thread "+part+" START");
+		System.out.println("(computerEdges) thread "+part+" START");
 		int i,j;
 		int N = fragments.size();
 		for(i=part; i<N ; i+=divisor){
@@ -40,14 +40,14 @@ public class Sequencer{
 				edges.add(new Edge( j, i, aps[1] ));//add {g,f}
 				edges.add(new Edge( j+N, i+N, aps[0] ));//add {g',f'}
 				edges.add(new Edge( i+N, j+N, aps[1] ));//add {f',g'}
-				AlignmentPath[] aps2 = fragments.get(i).getAlignmentScore(fragments.get(j).getComplementary());
+				aps = fragments.get(i).getAlignmentScore(fragments.get(j).getComplementary());
 				edges.add(new Edge( i, j+N, aps[0] ));//add {f,g'}
 				edges.add(new Edge( j+N, i, aps[1] ));//add {g',f}
 				edges.add(new Edge( j, i+N, aps[0] ));//add {g,f'}
 				edges.add(new Edge( i+N, j, aps[1] ));//add {f',g}
 			}
 		}
-		System.out.println("thread "+part+" END");
+		System.out.println("(computerEdges) thread "+part+" END");
 	}
 
 	/**
@@ -92,28 +92,31 @@ public class Sequencer{
 	 * Compute the Hamiltonian path
 	 * @param edges The list of all edges
 	 * @param nSequences The number of sequences (not including reverted complementary)
-	 * @return The entire Hamiltonian path. This list is not ordered!
+	 * @return The entire ordered Hamiltonian path.
 	 */
 	public static List<Edge> hamiltonian(List<Edge> edges, int nSequences){
+		//init tables
 		int totalN = 2*nSequences;
 		boolean[] in = new boolean[totalN];
 		boolean[] out = new boolean[totalN];
-		for(int i=0 ; i<totalN ; i++){
+		Edge[] nextEdges = new Edge[totalN];//next[i] is the edge from i in the hamiltonian path
+		int i;
+		for(i=0 ; i<totalN ; i++){
 			in[i] = false;
 			out[i] = false;
 		}
 		UnionFind uf = new UnionFind(totalN);
+		//start greedy
 		Comparator<Edge> comparator = Collections.reverseOrder();
 		Collections.sort(edges, comparator);
-		ArrayList<Edge> hamiltonian = new ArrayList<Edge>( nSequences-1);
 		for(Edge e : edges){
 			if(	!in[e.to] && !out[e.from]){
 				int rootFrom = uf.find(e.from);
 				int rootTo = uf.find(e.to);
 				if( rootFrom != rootTo){
-					hamiltonian.add(e);
 					in[e.to]=true;
 					out[e.from]=true;
+					nextEdges[e.from]=e;
 					//if the in and out of their complementary is true, they will never be taken
 					int compIndex;
 					if(e.from < nSequences)
@@ -137,8 +140,21 @@ public class Sequencer{
 				break;
 			}
 		}
-		if(uf.getNsets() != 1)
-			System.out.println("No Hamiltonian path: "+uf.getNsets()+" sets!");
+		//find the first node
+		int start=-1;
+		for(i=0 ; i<totalN ; i++){
+			if(in[i]==false){
+				start = i;
+				break;
+			}
+		}
+		//build the path. Ordered this time
+		i=start;
+		ArrayList<Edge> hamiltonian = new ArrayList<Edge>( nSequences-1);
+		while(out[i]){//while we don't reach the end of the path
+			hamiltonian.add(nextEdges[i]);
+			i = nextEdges[i].to;
+		}
 		return hamiltonian;
 	}
 
@@ -198,6 +214,9 @@ public class Sequencer{
 		@Override
 		public int compareTo(Edge e){
 			return this.weight.score - e.weight.score;
+		}
+		public String toString(){
+			return "("+from+" -> "+to+")";
 		}
 	}
 
