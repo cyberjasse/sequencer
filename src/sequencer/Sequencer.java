@@ -19,6 +19,18 @@ public class Sequencer{
 	 * Enter the path of the fragments file as first parameter
 	 */
 	public static void main(String args[]){
+		try {
+			List<Sequence> fragments = load(args[1]);
+			List<Edge> edges = allEdges(fragments, 1);
+			List<Edge> path = hamiltonian(edges, fragments.size());
+			System.out.println(fragments.size()+" fragments");
+			System.out.println(edges.get(0).from);
+			for (Edge e: path)
+				System.out.println(e.to);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
