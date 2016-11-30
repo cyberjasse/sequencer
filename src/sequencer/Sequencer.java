@@ -9,6 +9,8 @@ import java.lang.Comparable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.lang.Runnable;
+//import java.lang.management.ManagementFactory;
+//import java.lang.management.ThreadMXBean;
 
 /**
  * The main class computing the final consensus
@@ -19,17 +21,22 @@ public class Sequencer{
 	 * Enter the path of the fragments file as first parameter
 	 */
 	public static void main(String args[]){
-		try {
-			List<Sequence> fragments = load(args[1]);
-			List<Edge> edges = allEdges(fragments, 1);
-			List<Edge> path = hamiltonian(edges, fragments.size());
-			System.out.println(fragments.size()+" fragments");
-			System.out.println(edges.get(0).from);
-			for (Edge e: path)
-				System.out.println(e.to);
+		if(args.length < 1){
+			System.out.println("Please enter a file name as parameter.");
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+		else{
+			try {
+				List<Sequence> fragments = load(args[0]);
+				List<Edge> edges = allEdges(fragments, 2);
+				List<Edge> path = hamiltonian(edges, fragments.size());
+				System.out.println(fragments.size()+" fragments");
+				System.out.println(edges.get(0).from);
+				for (Edge e: path)
+					System.out.println(e.to);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -41,7 +48,9 @@ public class Sequencer{
 	 * @param edges The list to add edges
 	 */
 	private static void computeEdges(int divisor, int part, List<Sequence> fragments, ArrayList<Edge> edges){
-		System.out.println("(computerEdges) thread "+part+" START");
+		//ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		//long startTime = bean.getCurrentThreadCpuTime();
+		//System.out.println("(computerEdges) thread "+part+" START");
 		int i,j;
 		int N = fragments.size();
 		for(i=part; i<N ; i+=divisor){
@@ -59,7 +68,7 @@ public class Sequencer{
 				edges.add(new Edge( i+N, j, aps[1] ));//add {f',g}
 			}
 		}
-		System.out.println("(computerEdges) thread "+part+" END");
+		//System.out.println("(computerEdges) thread "+part+" END. Duration= "+(bean.getCurrentThreadCpuTime()-startTime)/1000000+"ms");
 	}
 
 	/**
