@@ -30,7 +30,9 @@ public class AlignmentTest{
 
 	@Test
 	public void pathfgTest(){
-		AlignmentPath ap = s1.getAlignmentScore(s2)[0];
+		int start;
+		//search the position of the score in matrix
+		AlignmentPath ap = s1.getAlignmentPath(s2);
 		byte[] expected = {D,D};
 		ap.compact();
 		assertArrayEquals(expected, ap.path);
@@ -38,13 +40,13 @@ public class AlignmentTest{
 
 	@Test
 	public void deltafgTest(){
-		AlignmentPath ap = s1.getAlignmentScore(s2)[0];
+		AlignmentPath ap = s1.getAlignmentPath(s2);
 		assertEquals(16, ap.delta);
 	}
 
 	@Test
 	public void pathgfTest(){
-		AlignmentPath ap = s1.getAlignmentScore(s2)[1];
+		AlignmentPath ap = s1.getRevertedAlignmentPath(s2);
 		byte[] expected = {D,D,D,D,D,U,D};//The exemple in slide page 63
 		ap.compact();
 		assertArrayEquals(expected, ap.path);
@@ -52,7 +54,7 @@ public class AlignmentTest{
 
 	@Test
 	public void deltagfTest(){
-		AlignmentPath ap = s1.getAlignmentScore(s2)[1];
+		AlignmentPath ap = s1.getRevertedAlignmentPath(s2);
 		assertEquals(-4, ap.delta);
 	}
 }

@@ -113,33 +113,15 @@ public class Sequence{
 	}
 
 	/**
-	 * Compute score of a semi global alignment.
-	 * Let f and g two sequences.
-	 * Let f' and g' the reverted complementary of f and g respectively.
-	 * Let score(f g) The score of the semi-global alignment forcing the suffix of f to be aligned with the prefix of g OR f included in g.
-	 * So
-	 * The first AlignmentPath returned contains score(f g)=score(g' f') and path in the alignment matrix.
-	 * The second AlignmentPath returned contains score(g f)=score(f' g') and path.
-	 * @param other g, The second sequence
-	 * @return return two scores with their path in the alignment matrix
+	 * Compute the path in a matrix (start on the last line)
+	 * @param start The position of the start on the last line
 	 */
-	public AlignmentPath[] getAlignmentScore(Sequence other){
-		int[][] matrix = semiGlobalAlignment(other);
-		//score(f g)
-		int score = matrix[fragment.length()][1];//length is a field in the String object
-		int start = 1;
-		int i, j;
-		//search the score and start position
-		for(j=2 ; j<=other.fragment.length() ; j++){
-			if( matrix[fragment.length()][j] > score ){
-				score = matrix[fragment.length()][j];
-				start = j;
-			}
-		}
-		//build the path
-		j = start;
-		i = fragment.length();
-		int maxsize = Math.max(fragment.length() , other.fragment.length());
+	private AlignmentPath pathMatrix(int[][] matrix, int start, Sequence other){
+		int j = start;
+		int i = matrix.length-1;//The number of lines -1
+		int score = matrix[i][j];
+		int maxsize = Math.max(matrix.length , matrix[0].length);
+		maxsize--;
 		byte[] pathfg = new byte[maxsize];
 		int pathsize = 0;
 		byte pathsymbol;
@@ -162,24 +144,24 @@ public class Sequence{
 		else
 			delta = i;
 		//build the AlignmentPath for score(f g)
-		AlignmentPath[] paths = new AlignmentPath[2];
-		paths[0] = new AlignmentPath(score,start,delta,pathfg,pathsize);
-		//score(g f)
-		score = matrix[1][other.fragment.length()];
-		start = 1;
-		//search the start position
-		for(i=2 ; i<fragment.length() ; i++){
-			if(matrix[i][other.fragment.length()] > score){
-				score = matrix[i][other.fragment.length()];
-				start = i;
-			}
-		}
+		return new AlignmentPath(score,start,delta,pathfg,pathsize);
+	}
+
+	/**
+	 * Compute the path in the transpoded of matrix (start on the last line).
+	 * It will not really transpose the matrix.
+	 * @param start The position of the start on the last column of matrix
+	 */
+	private AlignmentPath pathRevertedMatrix(int[][] matrix, int start, Sequence other){
 		//build the path but with a transpose matrix.
 		//there's no need to really transpose it, we just swap LEFT and UP.
+		int maxsize = Math.max(matrix.length , matrix[0].length);
 		byte[] pathgf = new byte[maxsize];
-		i = start;
-		j = other.fragment.length();
-		pathsize = 0;
+		int i = start;
+		int j = matrix[0].length-1;//number of columns-1
+		int score = matrix[i][j];
+		int pathsize = 0;
+		byte pathsymbol;
 		while(i>1 && j>1){
 			pathsymbol = nextPosition(i,j,matrix,other);
 			if(pathsymbol == AlignmentPath.UP){
@@ -197,13 +179,85 @@ public class Sequence{
 			}
 			pathsize++;
 		}
+		int delta;
 		if(i>1)//so j=1, we are on the "first" line of the transpose matrix
 			delta = -i;
 		else
 			delta = j;
 		//build the AlignmentPath for score(g f)
-		paths[1] = new AlignmentPath(score,start,delta,pathgf,pathsize);
-		return paths;
+		return new AlignmentPath(score,start,delta,pathgf,pathsize);
+	}
+
+	/**
+	 * Compute score of a semi global alignment.
+	 * Let f and g two sequences.
+	 * Let f' and g' the reverted complementary of f and g respectively.
+	 * Let score(f g) The score of the semi-global alignment forcing the suffix of f to be aligned with the prefix of g OR f included in g.
+	 * So
+	 * The first score returned is score(f g)=score(g' f').
+	 * The second returned is score(g f)=score(f' g').
+	 * @param other g, The second sequence
+	 * @return return score(f g) and score(g' f')
+	 */
+	public int[] getAlignmentScore(Sequence other){
+		int[] scores = new int[2];
+		int[][] matrix = semiGlobalAlignment(other);
+		//score(f g)
+		scores[0] = matrix[fragment.length()][1];//length is a field in the String object
+		int i, j;
+		//search the score
+		for(j=2 ; j<=other.fragment.length() ; j++){
+			if( matrix[fragment.length()][j] > scores[0] ){
+				scores[0] = matrix[fragment.length()][j];
+			}
+		}
+		//score(g f)
+		scores[1] = matrix[1][other.fragment.length()];
+		//search the score
+		for(i=2 ; i<fragment.length() ; i++){
+			if(matrix[i][other.fragment.length()] > scores[1]){
+				scores[1] = matrix[i][other.fragment.length()];
+			}
+		}
+		return scores;
+	}
+
+	/**
+	 * Compute the AlignmentPath of score(f g) The score of the semi-global alignment forcing the suffix of f to be aligned with the prefix of g OR f included in g.
+	 * note: it will compute the alignment matrix.
+	 */
+	public AlignmentPath getAlignmentPath(Sequence other){
+		int[][] matrix = semiGlobalAlignment(other);
+		int score = matrix[fragment.length()][1];//length is a field in the String object
+		int j;
+		int start = 1;
+		//search the position of the score
+		for(j=2 ; j<=other.fragment.length() ; j++){
+			if( matrix[fragment.length()][j] > score ){
+				score = matrix[fragment.length()][j];
+				start = j;
+			}
+		}
+		return pathMatrix(matrix, start, other);
+	}
+
+	/**
+	 * Compute the AlignmentPath of the reverted matrix of score(f g) The score of the semi-global alignment forcing the suffix of f to be aligned with the prefix of g OR f included in g.
+	 * note: it will compute the alignment matrix.
+	 */
+	public AlignmentPath getRevertedAlignmentPath(Sequence other){
+		int[][] matrix = semiGlobalAlignment(other);
+		int score = matrix[1][other.fragment.length()];//length is a field in the String object
+		int i;
+		int start = 1;
+		//search the position of the score
+		for(i=2 ; i<=fragment.length() ; i++){
+			if( matrix[i][other.fragment.length()] > score){
+				score = matrix[i][other.fragment.length()];
+				start = i;
+			}
+		}
+		return pathRevertedMatrix(matrix, start, other);
 	}
 
 	/**

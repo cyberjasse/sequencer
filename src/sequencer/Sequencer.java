@@ -34,7 +34,7 @@ public class Sequencer{
 	}
 
 	/**
-	 * Compute a part of all AlignmenPath
+	 * Compute a part of all edges and their weight
 	 * @param divisor How much the work is divided. It computes 1/divisor of all paths
 	 * @param part What part of the work to compute. Indexed from 0
 	 * @param fragments
@@ -47,7 +47,7 @@ public class Sequencer{
 		for(i=part; i<N ; i+=divisor){
 			for(j=i+1 ; j<N ; j++){
 				//i is f, j is g. i+N is f', j+N is g'
-				AlignmentPath[] aps = fragments.get(i).getAlignmentScore(fragments.get(j));
+				int[] aps = fragments.get(i).getAlignmentScore(fragments.get(j));
 				edges.add(new Edge( i, j, aps[0] ));//add {f,g}
 				edges.add(new Edge( j, i, aps[1] ));//add {g,f}
 				edges.add(new Edge( j+N, i+N, aps[0] ));//add {g',f'}
@@ -219,18 +219,18 @@ public class Sequencer{
 	public final static class Edge implements Comparable<Edge>{
 		public final int from;
 		public final int to;
-		public final AlignmentPath weight;
-		public Edge(int f, int t, AlignmentPath w){
+		public final int weight;
+		public Edge(int f, int t, int w){
 			from = f;
 			to = t;
 			weight = w;
 		}
 		@Override
 		public int compareTo(Edge e){
-			return this.weight.score - e.weight.score;
+			return this.weight - e.weight;
 		}
 		public String toString(){
-			return "("+from+" -> "+to+")";
+			return "("+from+" --"+weight+"--> "+to+")";
 		}
 	}
 
