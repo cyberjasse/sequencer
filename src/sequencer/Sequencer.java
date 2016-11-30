@@ -192,8 +192,10 @@ public class Sequencer{
 				if (c == '>')
 					input.readLine(); //trash it
 			}
-			else
+			else {
+				current_sequence.append((char)c);
 				current_sequence.append(input.readLine());
+			}
 		} while (c != -1);
 		return fragments;
 	}
