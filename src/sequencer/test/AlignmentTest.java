@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 
 public class AlignmentTest{
 
-	static private int[][] a;
+	static private short[][] a;
 	static private Sequence s1;
 	static private Sequence s2;
 	static private byte U=AlignmentPath.UP, L=AlignmentPath.LEFT, D=AlignmentPath.LEFT_UP;//

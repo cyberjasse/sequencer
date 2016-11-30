@@ -47,7 +47,7 @@ public class Sequencer{
 		for(i=part; i<N ; i+=divisor){
 			for(j=i+1 ; j<N ; j++){
 				//i is f, j is g. i+N is f', j+N is g'
-				int[] aps = fragments.get(i).getAlignmentScore(fragments.get(j));
+				short[] aps = fragments.get(i).getAlignmentScore(fragments.get(j));
 				edges.add(new Edge( i, j, aps[0] ));//add {f,g}
 				edges.add(new Edge( j, i, aps[1] ));//add {g,f}
 				edges.add(new Edge( j+N, i+N, aps[0] ));//add {g',f'}
@@ -219,8 +219,8 @@ public class Sequencer{
 	public final static class Edge implements Comparable<Edge>{
 		public final int from;
 		public final int to;
-		public final int weight;
-		public Edge(int f, int t, int w){
+		public final short weight;
+		public Edge(int f, int t, short w){
 			from = f;
 			to = t;
 			weight = w;
