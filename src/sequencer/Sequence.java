@@ -144,7 +144,7 @@ public class Sequence{
 		else
 			delta = i;
 		//build the AlignmentPath for score(f g)
-		return new AlignmentPath(score,start,delta,pathfg,pathsize);
+		return new AlignmentPath(score,start,delta,pathfg);
 	}
 
 	/**
@@ -185,7 +185,7 @@ public class Sequence{
 		else
 			delta = j;
 		//build the AlignmentPath for score(g f)
-		return new AlignmentPath(score,start,delta,pathgf,pathsize);
+		return new AlignmentPath(score,start,delta,pathgf);
 	}
 
 	/**
