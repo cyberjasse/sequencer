@@ -286,4 +286,8 @@ public class Sequence{
 	public String toString() {
 		return fragment;
 	}
+
+	public int length() {
+		return fragment.length();
+	}
 }

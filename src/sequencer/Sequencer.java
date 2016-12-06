@@ -212,7 +212,35 @@ public class Sequencer{
 	}
 
 	/**
-	 * A edge of the graph used for the hamiltonian path research
+	 * Combine alignments from two consecutive edges
+	 * @param a alignment of the first sequence
+	 * @param as first sequence
+	 * @param b second sequence
+	 * @return b's alignment with a
+	 */
+	public static String getAlignment(String a, Sequence as, Sequence bs){
+		StringBuilder r = new StringBuilder();
+		AlignmentPath p= as.getAlignmentPath(bs);
+		int i = a.length() - 1;
+		int j = bs.length() - 1;
+		for (int k = p.path.length - 1; k>=0 && i>=0; k--) {
+			for (; a.charAt(i)=='-'; i--)
+				r.append('-');
+			switch (p.path[k]) {
+				case AlignmentPath.LEFT:
+				case AlignmentPath.LEFT_UP:
+					r.append(bs.get(j));
+					j--;
+					break;
+				case AlignmentPath.UP:
+					r.append('-');
+			}
+		}
+		return r.reverse().toString();
+	}
+
+	/**
+	 * An edge of the graph used for the Hamiltonian path computation
 	 * The value of from and to is an identifier of a Sequence.
 	 * If there are N sequences, then N+i is the reverted complementary of the ith sequence. Indexed from 0.
 	 */
@@ -245,7 +273,7 @@ public class Sequencer{
 		private final int part;
 		/**The list to add computed edges*/
 		private final ArrayList<Edge> edges;
-		
+
 		public EdgeComputer(List<Sequence> in, ArrayList<Edge> out, int nThreads, int part){
 			fragments = in;
 			edges = out;
