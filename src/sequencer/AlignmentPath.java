@@ -23,23 +23,27 @@ public class AlignmentPath{
 	public static final byte LEFT=1, LEFT_UP=2, UP=3;
 	/**The path. A list of symbols {LEFT, LEFT_UP, UP)*/
 	public byte[] path;
+	/**The number of symbols in path*/
+	public final int pathlength;
 
 	/**
 	 * @param score The score of the semi-global alignment where the suffix of the first sequence is aligned with the prefix of the second.
 	 * @param start The position on the last line where starts the alignment int the matrix.
 	 * @param delta The position on the first sequence where starts the alignement.
 	 * @param path The path.
+	 * @param pathSize The length of the path.
 	 */
-	public AlignmentPath(int score, int start, int delta, byte[] path){
+	public AlignmentPath(int score, int start, int delta, byte[] path, int pathLength){
 		this.score = score;
 		this.start = start;
 		this.delta = delta;
 		this.path  = path;
+		this.pathlength = pathLength;
 	}
 
 	public String toString(){
 		String text="WEIGHT="+score+". start "+start+" then";
-		for(int i=0; i<path.length ; i++){
+		for(int i=0; i<pathlength ; i++){
 			switch(path[i]){
 				case LEFT : text+=" L,";break;
 				case LEFT_UP : text+=" D,";break;
@@ -51,8 +55,8 @@ public class AlignmentPath{
 	}
 
 	public void compact(){
-		byte[] newtab = new byte[path.length];
-		for(int i=0 ; i<path.length ; i++){
+		byte[] newtab = new byte[pathlength];
+		for(int i=0 ; i<pathlength ; i++){
 			newtab[i] = path[i];
 		}
 		path = newtab;
