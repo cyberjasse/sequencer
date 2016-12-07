@@ -222,13 +222,17 @@ public class Sequencer{
 		StringBuilder r = new StringBuilder();
 		AlignmentPath p= as.getAlignmentPath(bs);
 		int i = a.length() - 1;
-		int j = bs.length() - 1;
-		for (int k = p.path.length - 1; k>=0 && i>=0; k--) {
+		int j;
+		for (j = bs.length() - 1; j > p.start - 1; j--)
+			r.append(bs.get(j));
+		for (int k = p.pathlength - 1; k>=0 && i>=0; k--) {
 			for (; a.charAt(i)=='-'; i--)
 				r.append('-');
 			switch (p.path[k]) {
-				case AlignmentPath.LEFT:
 				case AlignmentPath.LEFT_UP:
+					i--;
+					//fallthrough
+				case AlignmentPath.LEFT:
 					r.append(bs.get(j));
 					j--;
 					break;
@@ -236,6 +240,8 @@ public class Sequencer{
 					r.append('-');
 			}
 		}
+		for (; i>=0; i--)
+			r.append(a.charAt(i));
 		return r.reverse().toString();
 	}
 

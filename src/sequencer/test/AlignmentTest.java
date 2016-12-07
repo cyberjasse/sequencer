@@ -3,6 +3,7 @@
 //java -cp .:../lib/junit-4.11.jar:../lib/hamcrest-core-1.3.jar org.junit.runner.JUnitCore sequencer.test.AlignmentTest
 package sequencer.test;
 import sequencer.Sequence;
+import sequencer.Sequencer;
 import sequencer.AlignmentPath;
 import org.junit.Test;
 import org.junit.Ignore;
@@ -56,5 +57,12 @@ public class AlignmentTest{
 	public void deltagfTest(){
 		AlignmentPath ap = s1.getRevertedAlignmentPath(s2);
 		assertEquals(-4, ap.delta);
+	}
+
+	@Test
+	public void alalTest(){
+		Sequence s = new Sequence("GTCCC");
+		Sequence t = new Sequence("GTACCA");
+		assertEquals("G-TACCA", Sequencer.getAlignment("G-TCCC", s, t));
 	}
 }
