@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.Comparable;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,13 +27,16 @@ public class Sequencer{
 		}
 		else{
 			try {
-				List<Sequence> fragments = load(args[0]);
+				/*List<Sequence> fragments = load(args[0]);
 				List<Edge> edges = allEdges(fragments, 2);
 				List<Edge> path = hamiltonian(edges, fragments.size());
 				System.out.println(fragments.size()+" fragments");
 				System.out.println(edges.get(0).from);
 				for (Edge e: path)
-					System.out.println(e.to);
+					System.out.println(e.to);*/
+				String numCollection = Character.toString(args[0].substring(args[0].length()-7).charAt(0));//dumb method to get the collection number
+				String consensus = "";
+				save(consensus, "HUYSMANS-BURYcollection"+numCollection, numCollection, "1");//TODO what is our group number
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -177,6 +181,28 @@ public class Sequencer{
 			i = nextEdges[i].to;
 		}
 		return hamiltonian;
+	}
+
+	/**
+	 * save a String in a fasta file
+	 * @param sequency The string to save
+	 * @param filename The name of the file without the '.fasta' sufix.
+	 * @param numCollection The number of the collection
+	 * @param numGroup The number of our group
+	 */
+	public static void save(String sequency, String filename, String numCollection, String numGroup)
+			throws FileNotFoundException, IOException {
+		PrintWriter output = new PrintWriter(filename+".fasta");
+		int len = sequency.length();
+		output.println(">Groupe-"+numGroup+" Collection "+numCollection+" Longueur "+Integer.toString(len));
+		int i=80;
+		for(i=80 ; i<len ; i+=80){
+			//here we know that it still 80 or more char to print
+			output.println(sequency.substring(i-80, i));
+		}
+		//It still less than 80 char to print
+		output.println(sequency.substring(i-80));
+		output.close();
 	}
 
 	/**
