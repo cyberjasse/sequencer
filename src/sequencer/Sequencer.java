@@ -41,7 +41,6 @@ public class Sequencer{
 	 * @param edges The list to add edges
 	 */
 	private static void computeEdges(int divisor, int part, List<Sequence> fragments, ArrayList<Edge> edges){
-		System.out.println("(computerEdges) thread "+part+" START");
 		int i,j;
 		int N = fragments.size();
 		for(i=part; i<N ; i+=divisor){
@@ -59,7 +58,7 @@ public class Sequencer{
 				edges.add(new Edge( i+N, j, aps[1] ));//add {f',g}
 			}
 		}
-		System.out.println("(computerEdges) thread "+part+" END");
+		System.out.println("thread "+part+" has finished its job.");
 	}
 
 	/**
