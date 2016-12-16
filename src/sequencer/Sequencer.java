@@ -239,8 +239,11 @@ public class Sequencer{
 					r.append('-');
 			}
 		}
-		for (; i>=0; i--)
-			r.append(a.charAt(i));
+		for (; j>=0; j--) {
+			for (; a.charAt(i)=='-'; i--)
+				r.append('-');
+			r.append(bs.get(j));
+		}
 		return r.reverse().toString();
 	}
 

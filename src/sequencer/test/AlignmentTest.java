@@ -66,6 +66,6 @@ public class AlignmentTest{
 		assertEquals("G-TACCA", Sequencer.getAlignment("G-TCCC", s, t));
 		s = new Sequence("ATCGTAAT");
 		t = new Sequence("TAATGG");
-		assertEquals("ATCGT-AATGG", Sequencer.getAlignment("ATCGT-AAT", s, t));
+		assertEquals("T-AATGG", Sequencer.getAlignment("ATCGT-AAT", s, t));
 	}
 }
