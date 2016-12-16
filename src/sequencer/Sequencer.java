@@ -5,10 +5,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.Comparable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.lang.Runnable;
+//import java.lang.management.ManagementFactory;
+//import java.lang.management.ThreadMXBean;
 
 /**
  * The main class computing the final consensus
@@ -19,17 +22,25 @@ public class Sequencer{
 	 * Enter the path of the fragments file as first parameter
 	 */
 	public static void main(String args[]){
-		try {
-			List<Sequence> fragments = load(args[1]);
-			List<Edge> edges = allEdges(fragments, 1);
-			List<Edge> path = hamiltonian(edges, fragments.size());
-			System.out.println(fragments.size()+" fragments");
-			System.out.println(edges.get(0).from);
-			for (Edge e: path)
-				System.out.println(e.to);
+		if(args.length < 1){
+			System.out.println("Please enter a file name as parameter.");
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+		else{
+			try {
+				/*List<Sequence> fragments = load(args[0]);
+				List<Edge> edges = allEdges(fragments, 2);
+				List<Edge> path = hamiltonian(edges, fragments.size());
+				System.out.println(fragments.size()+" fragments");
+				System.out.println(edges.get(0).from);
+				for (Edge e: path)
+					System.out.println(e.to);*/
+				String numCollection = Character.toString(args[0].substring(args[0].length()-7).charAt(0));//dumb method to get the collection number
+				String consensus = "";
+				save(consensus, "HUYSMANS-BURYcollection"+numCollection, numCollection, "1");//TODO what is our group number
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -41,6 +52,8 @@ public class Sequencer{
 	 * @param edges The list to add edges
 	 */
 	private static void computeEdges(int divisor, int part, List<Sequence> fragments, ArrayList<Edge> edges){
+		//ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		//long startTime = bean.getCurrentThreadCpuTime();
 		int i,j;
 		int N = fragments.size();
 		for(i=part; i<N ; i+=divisor){
@@ -58,7 +71,7 @@ public class Sequencer{
 				edges.add(new Edge( i+N, j, aps[1] ));//add {f',g}
 			}
 		}
-		System.out.println("thread "+part+" has finished its job.");
+		//System.out.println("(computerEdges) thread "+part+" END. Duration= "+(bean.getCurrentThreadCpuTime()-startTime)/1000000+"ms");
 	}
 
 	/**
@@ -167,6 +180,28 @@ public class Sequencer{
 			i = nextEdges[i].to;
 		}
 		return hamiltonian;
+	}
+
+	/**
+	 * save a String in a fasta file
+	 * @param sequency The string to save
+	 * @param filename The name of the file without the '.fasta' sufix.
+	 * @param numCollection The number of the collection
+	 * @param numGroup The number of our group
+	 */
+	public static void save(String sequency, String filename, String numCollection, String numGroup)
+			throws FileNotFoundException, IOException {
+		PrintWriter output = new PrintWriter(filename+".fasta");
+		int len = sequency.length();
+		output.println(">Groupe-"+numGroup+" Collection "+numCollection+" Longueur "+Integer.toString(len));
+		int i=80;
+		for(i=80 ; i<len ; i+=80){
+			//here we know that it still 80 or more char to print
+			output.println(sequency.substring(i-80, i));
+		}
+		//It still less than 80 char to print
+		output.println(sequency.substring(i-80));
+		output.close();
 	}
 
 	/**

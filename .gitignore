@@ -18,4 +18,5 @@ hs_err_pid*
 *.aux
 *.log
 *.tex.backup
+*.tex.kate-swp
 *~

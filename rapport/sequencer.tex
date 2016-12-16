@@ -1,0 +1,28 @@
+\documentclass[a4paper, 12pt, titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[pdftex]{graphicx}
+\usepackage[final]{pdfpages}
+\usepackage[frenchb]{babel}%Pas important
+\newcommand{\arc}[2]{$\left(#1~\rightarrow~#2\right)$}
+
+\begin{document}
+\input{titlepage}
+\input{introduction}
+\input{consensus}
+
+\section{Les complémentaires inversés dans l'algorithme Greedy}%explique comment on gère la suppressions des complémentaires inversés
+Au cours de l'éxécution de l'algorithme Greedy, lorsqu'un arc est ajouté au chemin hamiltonien, les complémentaires inversés de ses noeuds ne doivent plus être pris en compte.
+Pour cela, nous avons modifié l'algorithme Greedy et ajouté une fonction dans la structure Union find:\\
+En ajoutant un arc \arc{f}{g} au chemin hamiltonien, nous mettons les booléens \texttt{in} et \texttt{out} de leur complémentaire inversé à \texttt{vrai}.
+Ainsi les arcs issus de ces noeuds ne seront jamais ajoutés dans le chemin.
+De plus, nous avons ajouté une méthode dans l'objet \texttt{UnionFind} afin de décrémenter le compteur d'ensembles distincts dans la structure.
+Cette méthode sera appelé deux fois chaque fois qu'un arc \arc{f}{g} est ajouté au chemin.
+En effet, si l'arc \arc{f}{g} est ajouté au chemin, alors nous savons que la structure \texttt{UnionFind} contient les ensembles \{$\bar{f}$\} et \{$\bar{g}$\} puisqu'ils n'ont jamais fusionnés avec un autre ensemble.
+Et puisqu'ils ne seront plus jamais utilisés, il n'est pas nécessaire de réellement les supprimer mais juste de décrémenter de deux le nombre d'ensembles distincts.
+Ce compteur d'ensembles distincs est utilisé pour arrêter l'algorithme lorsqu'il n'y a plus que 1 ensemble dans l'\texttt{UnionFind}.
+
+\section{Les inclusions de fragments}%TODO expliquer comment on gère les inclusions de fragment.
+
+\input{optimisation}
+\end{document}
