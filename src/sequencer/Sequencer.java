@@ -252,7 +252,7 @@ public class Sequencer{
 	 * @param b second sequence
 	 * @return b's alignment with a
 	 */
-	public static String getAlignment(String a, Sequence as, Sequence bs){
+	public static Alignment getAlignment(String a, Sequence as, Sequence bs){
 		StringBuilder r = new StringBuilder();
 		AlignmentPath p= as.getAlignmentPath(bs);
 		int i = a.length() - 1;
@@ -279,7 +279,7 @@ public class Sequencer{
 				r.append('-');
 			r.append(bs.get(j));
 		}
-		return r.reverse().toString();
+		return new Alignment(r.reverse().toString(), i);
 	}
 
 	/**
