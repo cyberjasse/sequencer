@@ -14,8 +14,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 import java.lang.Runnable;
-//import java.lang.management.ManagementFactory;
-//import java.lang.management.ThreadMXBean;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 
 /**
  * The main class computing the final consensus
@@ -59,8 +59,8 @@ public class Sequencer{
 	 * @param edges The list to add edges
 	 */
 	private static void computeEdges(int divisor, int part, List<Sequence> fragments, ArrayList<Edge> edges){
-		//ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-		//long startTime = bean.getCurrentThreadCpuTime();
+		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		long startTime = bean.getCurrentThreadCpuTime();
 		int i,j;
 		int N = fragments.size();
 		for(i=part; i<N ; i+=divisor){
@@ -78,7 +78,7 @@ public class Sequencer{
 				edges.add(new Edge( i+N, j, aps[1] ));//add {f',g}
 			}
 		}
-		//System.out.println("(computerEdges) thread "+part+" END. Duration= "+(bean.getCurrentThreadCpuTime()-startTime)/1000000+"ms");
+		//System.err.println(part+","+(bean.getCurrentThreadCpuTime()-startTime)/1000000);
 	}
 
 	/**
