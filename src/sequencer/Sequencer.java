@@ -27,20 +27,23 @@ public class Sequencer{
 	 */
 	public static void main(String args[]){
 		if(args.length < 1){
-			System.out.println("Please enter a file name as parameter.");
+			System.err.println("usage: java -jar sequencer.jar collection3.fasta");
+			System.exit(1);
 		}
 		else{
 			try {
-				/*List<Sequence> fragments = load(args[0]);
+				System.out.print("Loading fragments...");
+				List<Sequence> fragments = load(args[0]);
+				System.out.println(" loaded "+fragments.size()+" fragments.");
+				System.out.println("Computing edges...");
 				List<Edge> edges = allEdges(fragments, 2);
+				System.out.println("Computing the Hamiltonian path...");
 				List<Edge> path = hamiltonian(edges, fragments.size());
-				System.out.println(fragments.size()+" fragments");
-				System.out.println(edges.get(0).from);
-				for (Edge e: path)
-					System.out.println(e.to);*/
-				String numCollection = Character.toString(args[0].substring(args[0].length()-7).charAt(0));//dumb method to get the collection number
-				String consensus = "";
-				save(consensus, "HUYSMANS-BURYcollection"+numCollection, numCollection, "1");//TODO what is our group number
+				char num = args[0].substring(args[0].length()-7).charAt(0);
+				System.out.println("Computing the consensus...");
+				String consensus = getConsensus(fragments, path);
+				//FIXME what is our group number?
+				save(consensus, "HUYSMANS-BURYcollection"+num, num, "1");
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -188,23 +191,22 @@ public class Sequencer{
 
 	/**
 	 * save a String in a fasta file
-	 * @param sequency The string to save
+	 * @param sequence The string to save
 	 * @param filename The name of the file without the '.fasta' sufix.
 	 * @param numCollection The number of the collection
 	 * @param numGroup The number of our group
 	 */
-	public static void save(String sequency, String filename, String numCollection, String numGroup)
+	public static void save(String sequence, String filename, char numCollection, String numGroup)
 			throws FileNotFoundException, IOException {
 		PrintWriter output = new PrintWriter(filename+".fasta");
-		int len = sequency.length();
+		int len = sequence.length();
 		output.println(">Groupe-"+numGroup+" Collection "+numCollection+" Longueur "+Integer.toString(len));
-		int i=80;
-		for(i=80 ; i<len ; i+=80){
-			//here we know that it still 80 or more char to print
-			output.println(sequency.substring(i-80, i));
-		}
-		//It still less than 80 char to print
-		output.println(sequency.substring(i-80));
+		int i;
+		for (i=80; i<len; i+=80)
+			//we have at least 80 characters to print
+			output.println(sequence.substring(i-80, i));
+		//print the rest (< 80 characters)
+		output.println(sequence.substring(i-80));
 		output.close();
 	}
 
