@@ -253,13 +253,19 @@ public class Sequencer{
 		int n = frags.size();
 		int pos = 0;
 		do {
-			//TODO test hasNext()
 			Edge edge = null;
 			boolean go = true;
 			if (it.hasNext()) {
 				edge = it.next();
-				Sequence a = frags.get(edge.from>n ? edge.from-n : edge.from);
-				Sequence b = frags.get(edge.to>n ? edge.to-n : edge.to);
+				Sequence a, b;
+				if (edge.from > n)
+					a = frags.get(edge.from - n).getComplementary();
+				else
+					a = frags.get(edge.from);
+				if (edge.to > n)
+					b = frags.get(edge.to - n).getComplementary();
+				else
+					b = frags.get(edge.to);
 				if (al == null) {
 					//let's not forget the first sequence
 					al = new Alignment(a.toString(), 0, 0);
