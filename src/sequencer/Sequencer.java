@@ -299,7 +299,7 @@ public class Sequencer{
 					for (int j='A'; j<='T'; i++)
 						if (votes[max] < votes[j])
 							max = j;
-					ret.append(votes[max]);
+					ret.append(max);
 				}
 			}
 			if (edge != null)
