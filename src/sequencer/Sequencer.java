@@ -9,6 +9,8 @@ import java.io.PrintWriter;
 import java.lang.Comparable;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Iterator;
 import java.lang.Runnable;
 //import java.lang.management.ManagementFactory;
 //import java.lang.management.ThreadMXBean;
@@ -235,14 +237,68 @@ public class Sequencer{
 	}
 
 	/**
-	 * Get final consensus (hope there are not too many...)
-	 * @param fragments The list of fragments.
-	 * @return All possible final consensuses, including complementary fragments.
+	 * Compute a consensus
+	 * @param fragments The list of fragments
+	 * @param path A Hamiltonian path
+	 * @return A possible final consensus
 	 */
-	public static List<Sequence> getFinalConsensus(List<Sequence> fragments){
-		List<Sequence> consensus = new ArrayList<Sequence>();
-		//TODO guillaume
-		return consensus;
+	public static Sequence getConsensus(List<Sequence> frags, List<Edge> path){
+		StringBuilder ret = new StringBuilder();
+		Alignment al = null;
+		Iterator<Edge> it = path.iterator();
+		PriorityQueue<Marker> pq = new PriorityQueue<>();
+		int n = frags.size();
+		int pos = 0;
+		do {
+			//TODO test hasNext()
+			Edge edge = null;
+			boolean go = true;
+			if (it.hasNext()) {
+				edge = it.next();
+				Sequence a = frags.get(edge.from>n ? edge.from-n : edge.from);
+				Sequence b = frags.get(edge.to>n ? edge.to-n : edge.to);
+				if (al == null) {
+					//let's not forget the first sequence
+					al = new Alignment(a.toString(), 0, 0);
+					pq.add(new Marker(0, al));
+					pq.add(new Marker(-1, al));
+				}
+				al = getAlignment(al.aligned, a, b, pos);
+				pq.add(new Marker(pos, al));
+				pq.add(new Marker(-1, al));
+				go = al.delta > 0;
+			}
+			if (go) {
+				Marker top = pq.poll();
+				for (Marker m: pq) {
+				}
+			}
+			if (edge != null)
+				pos += al.delta; //TODO inclusion?
+		} while (al.delta == 0);
+		return new Sequence(ret.toString());
+	}
+
+	private static class Marker implements Comparable {
+		public final int start; //-1 means this is an end
+		public final Alignment alignment;
+
+		public Marker(int start, Alignment alignment) {
+			this.start = start;
+			this.alignment = alignment;
+		}
+
+		public int getPosition() {
+			if (start == -1)
+				return alignment.endsAt;
+			else
+				return start;
+		}
+
+		@Override
+		public int compareTo(Object other) {
+			return getPosition() - ((Marker)other).getPosition();
+		}
 	}
 
 	/**
