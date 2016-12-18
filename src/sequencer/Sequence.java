@@ -7,10 +7,11 @@ package sequencer;
 public class Sequence{
 	protected String fragment;
 	protected Sequence complementary;
-	private static final int GAP_SCORE = -2;//-g
-	private static final int MATCH_SCORE = 1;
-	private static final int MISMATCH_SCORE = -1;
-	private static final int NEGATIVE_INFINITY = -1000000000;//FIXME int in java does not support a real infinity value. Double does but can take too much memory
+	//a short is between -32768 and 32767. And if the maximum length of a fragment is 800, score is between -1600 and 800
+	private static final short GAP_SCORE = -2;//-g
+	private static final short MATCH_SCORE = 1;
+	private static final short MISMATCH_SCORE = -1;
+	private static final short NEGATIVE_INFINITY = -10000;//FIXME short in java does not support a real infinity value. Double does but take too much memory
 
 	/**
 	 * @param seq The DNA fragment
@@ -26,20 +27,20 @@ public class Sequence{
 	}
 
 	/**
-	 * Print a int[][] table for debugging
+	 * Print a short[][] table for debugging
 	 * @param tab The table
 	 * @param nrows The number of rows
 	 * @param ncols The number of column
 	 */
-	private void printtab(int[][] tab, int nrows, int ncols){
-		for(int i=0 ; i<nrows ; i++){
-			for(int j=0 ; j<ncols ; j++){
-				int num = tab[i][j];
+	private void printtab(short[][] tab, short nrows, short ncols){
+		for(short i=0 ; i<nrows ; i++){
+			for(short j=0 ; j<ncols ; j++){
+				short num = tab[i][j];
 				if(num <= NEGATIVE_INFINITY){
 					System.out.print(" -IY");
 				}
 				else{
-					String st = Integer.toString(num);
+					String st = Short.toString(num);
 					if(st.length() > 3) System.out.print(st = " BIG");
 					else System.out.print(String.format(" %1$03d",num));
 				}
@@ -53,26 +54,26 @@ public class Sequence{
 	 * @param other The other sequence
 	 * @return The matrix needed to compute the score or the resulting consensus.
 	 */
-	public int[][] semiGlobalAlignment(Sequence other){
-		int m = this.fragment.length();
-		int n = other.fragment.length();
-		int[][] a = new int[m+1][n+1];
+	public short[][] semiGlobalAlignment(Sequence other){
+		short m = (short)this.fragment.length();
+		short n = (short)other.fragment.length();
+		short[][] a = new short[m+1][n+1];
 		//Values in matrice at first
-		int i, j;
+		short i, j;
 		for(i=0 ; i<=m ; i++)
 			a[i][0] = 0;
 		for(j=0 ; j<=n ; j++)
 			a[0][j] = 0;
 		//Applied the recurrence with an iterative implementation
-		int score;
+		short score;
 		for(i=1 ; i<=m ; i++){
 			for(j=1 ; j<=n ; j++){
-				int im1 = i-1, jm1 = j-1;//to not compute them 3 times
+				short im1 = (short)(i-1), jm1 = (short)(j-1);//to not compute them 3 times
 				if(this.get(im1) == other.get(jm1))
 					score = MATCH_SCORE;
 				else
 					score = MISMATCH_SCORE;
-				a[i][j] = Math.max(a[im1][j]+GAP_SCORE,
+				a[i][j] = (short)Math.max(a[im1][j]+GAP_SCORE,
 					Math.max(a[im1][jm1]+score,
 					a[i][jm1]+GAP_SCORE));
 			}
@@ -91,21 +92,23 @@ public class Sequence{
 	/**
 	 * From the position [i][j] on a alignement matrix (for this and other), return an AlignmentPath path symbol to indicate from where the score on [i][j] comes from
 	 */
-	private byte nextPosition(int i, int j, int[][] matrix, Sequence other){
-		int matchscore;
+	private byte nextPosition(short i, short j, short[][] matrix, Sequence other){
+		short matchscore;
 		byte where;
-		if(get(i-1)==other.get(j-1))
+		short im1 = (short)(i-1);
+		short jm1 = (short)(j-1);
+		if(get(im1)==other.get(jm1))
 			matchscore = MATCH_SCORE;
 		else
 			matchscore = MISMATCH_SCORE;
-		int fromscore = matrix[i-1][j]+GAP_SCORE;
+		short fromscore = (short)(matrix[im1][j]+GAP_SCORE);
 		where = AlignmentPath.UP;
-		int otherscore = matrix[i-1][j-1]+matchscore;
+		short otherscore = (short)(matrix[im1][jm1]+matchscore);
 		if( otherscore > fromscore){
 			fromscore = otherscore;
 			where = AlignmentPath.LEFT_UP;
 		}
-		otherscore = matrix[i][j-1]+GAP_SCORE;
+		otherscore = (short)(matrix[i][jm1]+GAP_SCORE);
 		if( otherscore > fromscore){
 			return AlignmentPath.LEFT;
 		}
@@ -116,14 +119,14 @@ public class Sequence{
 	 * Compute the path in a matrix (start on the last line)
 	 * @param start The position of the start on the last line
 	 */
-	private AlignmentPath pathMatrix(int[][] matrix, int start, Sequence other){
-		int j = start;
-		int i = matrix.length-1;//The number of lines -1
-		int score = matrix[i][j];
-		int maxsize = Math.max(matrix.length , matrix[0].length);
+	private AlignmentPath pathMatrix(short[][] matrix, short start, Sequence other){
+		short j = start;
+		short i = (short)(matrix.length-1);//The number of lines -1
+		short score = matrix[i][j];
+		short maxsize = (short)Math.max(matrix.length , matrix[0].length);
 		maxsize--;
 		byte[] pathfg = new byte[maxsize];
-		int pathsize = 0;
+		short pathsize = 0;
 		byte pathsymbol;
 		while(i>1 && j>1){
 			pathsymbol = nextPosition(i,j,matrix,other);
@@ -138,9 +141,9 @@ public class Sequence{
 			}
 			pathsize++;
 		}
-		int delta;
+		short delta;
 		if(j>1)//so i=1, we are on the "first" line
-			delta = -j;
+			delta = (short)-j;
 		else
 			delta = i;
 		//build the AlignmentPath for score(f g)
@@ -152,15 +155,15 @@ public class Sequence{
 	 * It will not really transpose the matrix.
 	 * @param start The position of the start on the last column of matrix
 	 */
-	private AlignmentPath pathRevertedMatrix(int[][] matrix, int start, Sequence other){
+	private AlignmentPath pathRevertedMatrix(short[][] matrix, short start, Sequence other){
 		//build the path but with a transpose matrix.
 		//there's no need to really transpose it, we just swap LEFT and UP.
-		int maxsize = Math.max(matrix.length , matrix[0].length);
+		short maxsize = (short)Math.max(matrix.length , matrix[0].length);
 		byte[] pathgf = new byte[maxsize];
-		int i = start;
-		int j = matrix[0].length-1;//number of columns-1
-		int score = matrix[i][j];
-		int pathsize = 0;
+		short i = start;
+		short j = (short)(matrix[0].length-1);//number of columns-1
+		short score = matrix[i][j];
+		short pathsize = 0;
 		byte pathsymbol;
 		while(i>1 && j>1){
 			pathsymbol = nextPosition(i,j,matrix,other);
@@ -179,9 +182,9 @@ public class Sequence{
 			}
 			pathsize++;
 		}
-		int delta;
+		short delta;
 		if(i>1)//so j=1, we are on the "first" line of the transpose matrix
-			delta = -i;
+			delta = (short)-i;
 		else
 			delta = j;
 		//build the AlignmentPath for score(g f)
@@ -199,14 +202,14 @@ public class Sequence{
 	 * @param other g, The second sequence
 	 * @return return score(f g) and score(g' f')
 	 */
-	public int[] getAlignmentScore(Sequence other){
-		int[] scores = new int[2];
-		int[][] matrix = semiGlobalAlignment(other);
+	public short[] getAlignmentScore(Sequence other){
+		short[] scores = new short[2];
+		short[][] matrix = semiGlobalAlignment(other);
 		//score(f g)
 		scores[0] = matrix[fragment.length()][1];//length is a field in the String object
-		int i, j;
+		short i, j;
 		//search the score
-		for(j=2 ; j<=other.fragment.length() ; j++){
+		for(j=(short)2 ; j<=other.fragment.length() ; j++){
 			if( matrix[fragment.length()][j] > scores[0] ){
 				scores[0] = matrix[fragment.length()][j];
 			}
@@ -227,12 +230,12 @@ public class Sequence{
 	 * note: it will compute the alignment matrix.
 	 */
 	public AlignmentPath getAlignmentPath(Sequence other){
-		int[][] matrix = semiGlobalAlignment(other);
-		int score = matrix[fragment.length()][1];//length is a field in the String object
-		int j;
-		int start = 1;
+		short[][] matrix = semiGlobalAlignment(other);
+		short score = matrix[fragment.length()][1];//length is a field in the String object
+		short j;
+		short start = (short)1;
 		//search the position of the score
-		for(j=2 ; j<=other.fragment.length() ; j++){
+		for(j=(short)2 ; j<=other.fragment.length() ; j++){
 			if( matrix[fragment.length()][j] > score ){
 				score = matrix[fragment.length()][j];
 				start = j;
@@ -246,12 +249,12 @@ public class Sequence{
 	 * note: it will compute the alignment matrix.
 	 */
 	public AlignmentPath getRevertedAlignmentPath(Sequence other){
-		int[][] matrix = semiGlobalAlignment(other);
-		int score = matrix[1][other.fragment.length()];//length is a field in the String object
-		int i;
-		int start = 1;
+		short[][] matrix = semiGlobalAlignment(other);
+		short score = matrix[1][other.fragment.length()];//length is a field in the String object
+		short i;
+		short start = (short)1;
 		//search the position of the score
-		for(i=2 ; i<=fragment.length() ; i++){
+		for(i=(short)2 ; i<=fragment.length() ; i++){
 			if( matrix[i][other.fragment.length()] > score){
 				score = matrix[i][other.fragment.length()];
 				start = i;
@@ -263,8 +266,8 @@ public class Sequence{
 	/**
 	 * Compute The score in case of an inclusion of sequences
 	 */
-	public int getInclusionScore(Sequence other){
-		return -1;//TODO ?
+	public short getInclusionScore(Sequence other){
+		return (short)-1;//TODO ?
 	}
 
 	/**
