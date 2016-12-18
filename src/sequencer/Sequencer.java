@@ -269,12 +269,12 @@ public class Sequencer{
 				if (al == null) {
 					//let's not forget the first sequence
 					al = new Alignment(a.toString(), 0, 0);
-					pq.add(al.endsAt);
+					pq.add(al.endsAt - 1);
 					rem.add(al);
 				}
 				al = getAlignment(al.aligned, a, b, pos);
 				pq.add(pos);
-				pq.add(al.endsAt);
+				pq.add(al.endsAt - 1);
 				rem.add(al);
 				go = al.delta > 0;
 			}
