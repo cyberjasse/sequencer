@@ -32,18 +32,23 @@ public class Sequencer{
 		}
 		else{
 			try {
-				System.out.print("Loading fragments...");
+				/*System.out.print("Loading fragments...");
 				List<Sequence> fragments = load(args[0]);
 				System.out.println(" loaded "+fragments.size()+" fragments.");
-				System.out.println("Computing edges...");
+				System.out.println("Computing edges...");*/
+				List<Sequence> fragments = new ArrayList<Sequence>(3);
+				fragments.add(new Sequence("ATTCGCG"));
+				fragments.add(new Sequence("GCGA"));
+				fragments.add(new Sequence("TGCGAT"));
 				List<Edge> edges = allEdges(fragments, 2);
 				System.out.println("Computing the Hamiltonian path...");
 				List<Edge> path = hamiltonian(edges, fragments.size());
 				char num = args[0].substring(args[0].length()-7).charAt(0);
 				System.out.println("Computing the consensus...");
 				String consensus = getConsensus(fragments, path);
+				System.out.println(consensus);
 				//FIXME what is our group number?
-				save(consensus, "HUYSMANS-BURYcollection"+num, num, "1");
+				//save(consensus, "HUYSMANS-BURYcollection"+num, num, "1");
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -241,6 +246,18 @@ public class Sequencer{
 	}
 
 	/**
+	 * Get a sequency in a list of sequency providing its ID
+	 * @return Let n=list.size(). If id < n, return the idth fragment. If id > n, return the reverted complementary of the (id-n)th fragment
+	 */
+	private static Sequence getByID(List<Sequence> list, int id){
+		int n = list.size();
+		if (id > n)
+			return list.get(id - n).getComplementary();
+		else
+			return list.get(id);
+	}
+
+	/**
 	 * Compute a consensus
 	 * @param fragments The list of fragments
 	 * @param path A Hamiltonian path
@@ -248,65 +265,82 @@ public class Sequencer{
 	 */
 	public static String getConsensus(List<Sequence> frags, List<Edge> path){
 		StringBuilder ret = new StringBuilder();
-		Alignment al = null;
 		Iterator<Edge> it = path.iterator();
 		PriorityQueue<Integer> pq = new PriorityQueue<>(); //triggers votes
 		Set<Alignment> rem = new HashSet<>(); //we have to move pointers once!
-		int n = frags.size();
-		int pos = 0;
+		int pos = 0; //current absolut position used to fill PQ
+		int startPos= 0; //current absolut position used to start consensus
+		int viewPos = 0; //The maximal position added in pq
+		//Search the maximal size of all fragments in the path. and *2
+		int Mx2 = getByID(frags, path.get(0).from).length();
+		for(Edge e : path){
+			int nextSize = getByID(frags, e.to).length();
+			if(nextSize > Mx2)
+				Mx2 = nextSize;
+		}
+		Mx2 *= 2;
+		//Let's not forget the first sequence
+		Sequence first;
+		first = getByID(frags, path.get(0).from);
+		Alignment al = new Alignment(first.toString(), 0, 0);
+		pq.add(al.endsAt-1);
+		viewPos = al.endsAt-1;
+		rem.add(al);
+		//Now the rest of sequences
 		do {
-			Edge edge = null;
+			Edge edge;
 			boolean go = true;
-			if (it.hasNext()) {
+			//Add positions in PQ while the maximal position in PQ is < 2*MAX where MAX it the maximal fragment size (or added all positions)
+			Sequence a,b;
+			while(it.hasNext() && viewPos < pos+Mx2){
 				edge = it.next();
-				Sequence a, b;
-				if (edge.from > n)
-					a = frags.get(edge.from - n).getComplementary();
-				else
-					a = frags.get(edge.from);
-				if (edge.to > n)
-					b = frags.get(edge.to - n).getComplementary();
-				else
-					b = frags.get(edge.to);
-				if (al == null) {
-					//let's not forget the first sequence
-					al = new Alignment(a.toString(), 0, 0);
-					pq.add(al.endsAt - 1);
-					rem.add(al);
-				}
+				a = getByID(frags, edge.from);
+				b = getByID(frags, edge.to);
 				al = getAlignment(al.aligned, a, b, pos);
 				pq.add(pos);
 				pq.add(al.endsAt - 1);
+				if(viewPos < al.endsAt-1)
+					viewPos = al.endsAt-1;
 				rem.add(al);
-				go = al.delta > 0;
+				//FIXME update pos
 			}
-			if (go) {
-				Integer top = pq.poll();
-				while (pq.peek()!=null && pq.peek()==top)
-					//remove duplicate markers
-					pq.poll();
-				if (top == null)
-					break;
-				n = top - ret.length();
-				for (int i=0; i<n; i++) {
-					byte[] votes = new byte['T'+1];
-					for (Alignment a: rem) {
-						if (a.position >= 0)
-							votes[a.aligned.charAt(a.position)]++;
-						a.position++;
-						if (a.position == a.aligned.length())
-							rem.remove(a);
-					}
-					int max = '-';
-					for (int j='A'; j<='T'; i++)
-						if (votes[max] < votes[j])
-							max = j;
-					ret.append(max);
+			//Retrieve the next value in the PQ
+			Integer top = pq.poll();
+			while (pq.peek()!=null && pq.peek()==top)
+				//remove duplicate markers
+				pq.poll();
+			if (top == null)
+				break;
+			//search all alignment that a.endsAt < top to perform consensus. FIXME < top or <= top ?
+			ArrayList<Alignment> toConsensus= new ArrayList<>();
+			for (Alignment x: rem){
+				if(x.endsAt < top){
+					toConsensus.add(x);
 				}
 			}
-			if (edge != null)
-				pos += al.delta; //TODO inclusion?
-		} while (true);
+			//Perform consensus with these alignments
+			int n = top-startPos;
+			for (int i=0; i<n; i++) {
+				byte[] votes = new byte['T'+1];
+				for (Alignment x: toConsensus) {
+					votes[x.aligned.charAt(x.position)]++;
+					x.position++;
+				}
+				int max = '-';//FIXME perhaps if, for example, votes[A]==votes[T], then ret.append('-')
+				for (int j='A'; j<='T'; i++)
+					if (votes[max] < votes[j])
+						max = j;
+				ret.append(max);
+			}
+			//update statPos
+			startPos=top;
+			//remove all Alignment that ends before the new value of startPos
+			for (Alignment x: rem){
+				if(x.endsAt < startPos){
+					rem.remove(x);
+				}
+			}
+		} while (true);//it breaks if there is any element in PQ
 		return ret.toString(); //TODO remove gaps (not before!)
 	}
 
