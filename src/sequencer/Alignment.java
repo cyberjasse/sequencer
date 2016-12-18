@@ -23,4 +23,9 @@ public class Alignment {
 		else
 			return false;
 	}
+
+	@Override
+	public int hashCode() {
+		return aligned.hashCode() ^ position;
+	}
 }

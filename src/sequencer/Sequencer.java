@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
 import java.lang.Runnable;
 //import java.lang.management.ManagementFactory;
 //import java.lang.management.ThreadMXBean;
@@ -246,7 +248,8 @@ public class Sequencer{
 		StringBuilder ret = new StringBuilder();
 		Alignment al = null;
 		Iterator<Edge> it = path.iterator();
-		PriorityQueue<Marker> pq = new PriorityQueue<>();
+		PriorityQueue<Marker> pq = new PriorityQueue<>(); //triggers votes
+		Set<Alignment> rem = new HashSet<>(); //we have to move pointers once!
 		int n = frags.size();
 		int pos = 0;
 		do {
@@ -262,15 +265,17 @@ public class Sequencer{
 					al = new Alignment(a.toString(), 0, 0);
 					pq.add(new Marker(0, al));
 					pq.add(new Marker(-1, al));
+					rem.add(al);
 				}
 				al = getAlignment(al.aligned, a, b, pos);
 				pq.add(new Marker(pos, al));
 				pq.add(new Marker(-1, al));
+				rem.add(al);
 				go = al.delta > 0;
 			}
 			if (go) {
 				Marker top = pq.poll();
-				for (Marker m: pq) {
+				for (Alignment a: rem) {
 				}
 			}
 			if (edge != null)
