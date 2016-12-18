@@ -250,9 +250,10 @@ public class Sequencer{
 	 * @param a alignment of the first sequence
 	 * @param as first sequence
 	 * @param b second sequence
+	 * @param pos absolute position of the first sequence
 	 * @return b's alignment with a
 	 */
-	public static Alignment getAlignment(String a, Sequence as, Sequence bs){
+	public static Alignment getAlignment(String a, Sequence as, Sequence bs, int pos){
 		StringBuilder r = new StringBuilder();
 		AlignmentPath p= as.getAlignmentPath(bs);
 		int i = a.length() - 1;
@@ -279,7 +280,7 @@ public class Sequencer{
 				r.append('-');
 			r.append(bs.get(j));
 		}
-		return new Alignment(r.reverse().toString(), i);
+		return new Alignment(r.reverse().toString(), i, pos+i+r.length());
 	}
 
 	/**

@@ -64,11 +64,11 @@ public class AlignmentTest{
 	public void alalTest(){
 		Sequence s = new Sequence("GTCCC");
 		Sequence t = new Sequence("GTACCA");
-		Alignment a = new Alignment("G-TACCA", 0);
-		assertEquals(a, Sequencer.getAlignment("G-TCCC", s, t));
+		Alignment a = new Alignment("G-TACCA", 0, 0);
+		assertEquals(a, Sequencer.getAlignment("G-TCCC", s, t, 0));
 		s = new Sequence("ATCGTAAT");
 		t = new Sequence("TAATGG");
-		a = new Alignment("T-AATGG", 4);
-		assertEquals(a, Sequencer.getAlignment("ATCGT-AAT", s, t));
+		a = new Alignment("T-AATGG", 4, 0);
+		assertEquals(a, Sequencer.getAlignment("ATCGT-AAT", s, t, 0));
 	}
 }
