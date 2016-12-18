@@ -79,9 +79,9 @@ Le maximum des scores de la dernière colonne de la matrice donne celui de
 \arc{g}{f} et donc aussi celui de \arc{\bar{f}}{\bar{g}}.
 Quatre scores peuvent donc être calculés avec une seule matrice d'alignement.
 
-\subsection{Type des données} %TODO modification faite chez jason mais pas encore pushée
+\subsection{Typage des scores} %TODO modification faite chez jason mais pas encore pushée
 La valeur d'un score peut être enregistré en 2 octets (\texttt{short} en Java).
-Effectivement, on considère que les fragments sont tous de taille $\le 1000$. %TODO donner la taille maximale d'un fragment
-Une borne inférieure au score est -2000 (seulement des gaps) %TODO pas oublier de changer si changement des constantes de score
-et une borne supérieure est 1000 (alignement total).
-Un nombre signé stocké sur 2 octets se trouve entre -32768 et 32767.
+Effectivement, la taille maximale de fragment pour toutes les collections qui nous ont été fournie est de 1366.
+Une borne inférieure au score est -2732 (seulement des gaps) %TODO pas oublier de changer si changement des constantes de score
+et une borne supérieure est 1366 (alignement total).
+Or un nombre signé stocké sur 2 octets peut se trouver entre -32768 et 32767.
