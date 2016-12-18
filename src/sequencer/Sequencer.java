@@ -263,7 +263,6 @@ public class Sequencer{
 				if (al == null) {
 					//let's not forget the first sequence
 					al = new Alignment(a.toString(), 0, 0);
-					pq.add(new Marker(0, al));
 					pq.add(new Marker(-1, al));
 					rem.add(al);
 				}
@@ -285,7 +284,7 @@ public class Sequencer{
 	}
 
 	private static class Marker implements Comparable {
-		public final int start; //-1 means this is an end
+		private final int start; //-1 means this is an end
 		public final Alignment alignment;
 
 		public Marker(int start, Alignment alignment) {
