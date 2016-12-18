@@ -1,6 +1,11 @@
 \section{Introduction}
 \subsection{Énoncé}
-Le projet de Algorithmique et Bioinformatique de l'année 2016-2017 consiste à l'implémentation d'un séquenceur d'ADN.
-C'est à dire de reconstruire la séquence ADN cible à partir d'un ensemble de fragments.
-Pour ce faire, un heuristique de type \emph{Greedy} devra être utilisée dont les poids des arcs sont des scores d'alignement semi-globaux.
-Nous devons prendre en compte que certains fragments sont inclus à d'autre et certains fragments sont des complémentaires inversés de fragment de la cible.
+Le projet consiste à l'implémentation d'un séquenceur d'ADN,
+c'est-à-dire reconstruire la séquence ADN cible à partir d'un ensemble de fragments.
+Pour ce faire, une heuristique de type \emph{greedy} devra être utilisée pour
+reconstruire un chemin hamiltonien (ce problème est NP-complet) dans un graphe
+où les arcs sont des fragments et
+les arcs sont pondérés avec les scores d'alignements semi-globaux.
+Nous devons prendre en compte que certains fragments sont inclus à d'autre et
+qu'il faudra parfois prendre le complémentaires inversé d'un fragment de
+l'ensemble de départ.

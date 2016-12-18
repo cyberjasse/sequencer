@@ -9,9 +9,13 @@ import java.io.PrintWriter;
 import java.lang.Comparable;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
 import java.lang.Runnable;
-//import java.lang.management.ManagementFactory;
-//import java.lang.management.ThreadMXBean;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 
 /**
  * The main class computing the final consensus
@@ -23,20 +27,23 @@ public class Sequencer{
 	 */
 	public static void main(String args[]){
 		if(args.length < 1){
-			System.out.println("Please enter a file name as parameter.");
+			System.err.println("usage: java -jar sequencer.jar collection3.fasta");
+			System.exit(1);
 		}
 		else{
 			try {
-				/*List<Sequence> fragments = load(args[0]);
+				System.out.print("Loading fragments...");
+				List<Sequence> fragments = load(args[0]);
+				System.out.println(" loaded "+fragments.size()+" fragments.");
+				System.out.println("Computing edges...");
 				List<Edge> edges = allEdges(fragments, 2);
+				System.out.println("Computing the Hamiltonian path...");
 				List<Edge> path = hamiltonian(edges, fragments.size());
-				System.out.println(fragments.size()+" fragments");
-				System.out.println(edges.get(0).from);
-				for (Edge e: path)
-					System.out.println(e.to);*/
-				String numCollection = Character.toString(args[0].substring(args[0].length()-7).charAt(0));//dumb method to get the collection number
-				String consensus = "";
-				save(consensus, "HUYSMANS-BURYcollection"+numCollection, numCollection, "1");//TODO what is our group number
+				char num = args[0].substring(args[0].length()-7).charAt(0);
+				System.out.println("Computing the consensus...");
+				String consensus = getConsensus(fragments, path);
+				//FIXME what is our group number?
+				save(consensus, "HUYSMANS-BURYcollection"+num, num, "1");
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -52,9 +59,8 @@ public class Sequencer{
 	 * @param edges The list to add edges
 	 */
 	private static void computeEdges(int divisor, int part, List<Sequence> fragments, ArrayList<Edge> edges){
-		//ThreadMXBean bean = ManagementFactory.getThreadMXBean();
-		//long startTime = bean.getCurrentThreadCpuTime();
-		//System.out.println("(computerEdges) thread "+part+" START");
+		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
+		long startTime = bean.getCurrentThreadCpuTime();
 		int i,j;
 		int N = fragments.size();
 		for(i=part; i<N ; i+=divisor){
@@ -72,7 +78,7 @@ public class Sequencer{
 				edges.add(new Edge( i+N, j, aps[1] ));//add {f',g}
 			}
 		}
-		//System.out.println("(computerEdges) thread "+part+" END. Duration= "+(bean.getCurrentThreadCpuTime()-startTime)/1000000+"ms");
+		//System.err.println(part+","+(bean.getCurrentThreadCpuTime()-startTime)/1000000);
 	}
 
 	/**
@@ -185,23 +191,22 @@ public class Sequencer{
 
 	/**
 	 * save a String in a fasta file
-	 * @param sequency The string to save
+	 * @param sequence The string to save
 	 * @param filename The name of the file without the '.fasta' sufix.
 	 * @param numCollection The number of the collection
 	 * @param numGroup The number of our group
 	 */
-	public static void save(String sequency, String filename, String numCollection, String numGroup)
+	public static void save(String sequence, String filename, char numCollection, String numGroup)
 			throws FileNotFoundException, IOException {
 		PrintWriter output = new PrintWriter(filename+".fasta");
-		int len = sequency.length();
+		int len = sequence.length();
 		output.println(">Groupe-"+numGroup+" Collection "+numCollection+" Longueur "+Integer.toString(len));
-		int i=80;
-		for(i=80 ; i<len ; i+=80){
-			//here we know that it still 80 or more char to print
-			output.println(sequency.substring(i-80, i));
-		}
-		//It still less than 80 char to print
-		output.println(sequency.substring(i-80));
+		int i;
+		for (i=80; i<len; i+=80)
+			//we have at least 80 characters to print
+			output.println(sequence.substring(i-80, i));
+		//print the rest (< 80 characters)
+		output.println(sequence.substring(i-80));
 		output.close();
 	}
 
@@ -236,14 +241,73 @@ public class Sequencer{
 	}
 
 	/**
-	 * Get final consensus (hope there are not too many...)
-	 * @param fragments The list of fragments.
-	 * @return All possible final consensuses, including complementary fragments.
+	 * Compute a consensus
+	 * @param fragments The list of fragments
+	 * @param path A Hamiltonian path
+	 * @return A possible final consensus
 	 */
-	public static List<Sequence> getFinalConsensus(List<Sequence> fragments){
-		List<Sequence> consensus = new ArrayList<Sequence>();
-		//TODO guillaume
-		return consensus;
+	public static String getConsensus(List<Sequence> frags, List<Edge> path){
+		StringBuilder ret = new StringBuilder();
+		Alignment al = null;
+		Iterator<Edge> it = path.iterator();
+		PriorityQueue<Integer> pq = new PriorityQueue<>(); //triggers votes
+		Set<Alignment> rem = new HashSet<>(); //we have to move pointers once!
+		int n = frags.size();
+		int pos = 0;
+		do {
+			Edge edge = null;
+			boolean go = true;
+			if (it.hasNext()) {
+				edge = it.next();
+				Sequence a, b;
+				if (edge.from > n)
+					a = frags.get(edge.from - n).getComplementary();
+				else
+					a = frags.get(edge.from);
+				if (edge.to > n)
+					b = frags.get(edge.to - n).getComplementary();
+				else
+					b = frags.get(edge.to);
+				if (al == null) {
+					//let's not forget the first sequence
+					al = new Alignment(a.toString(), 0, 0);
+					pq.add(al.endsAt - 1);
+					rem.add(al);
+				}
+				al = getAlignment(al.aligned, a, b, pos);
+				pq.add(pos);
+				pq.add(al.endsAt - 1);
+				rem.add(al);
+				go = al.delta > 0;
+			}
+			if (go) {
+				Integer top = pq.poll();
+				while (pq.peek()!=null && pq.peek()==top)
+					//remove duplicate markers
+					pq.poll();
+				if (top == null)
+					break;
+				n = top - ret.length();
+				for (int i=0; i<n; i++) {
+					byte[] votes = new byte['T'+1];
+					for (Alignment a: rem) {
+						if (a.position >= 0)
+							votes[a.aligned.charAt(a.position)]++;
+						a.position++;
+						if (a.position == a.aligned.length())
+							rem.remove(a);
+					}
+					int max = '-';
+					for (int j='A'; j<='T'; i++)
+						if (votes[max] < votes[j])
+							max = j;
+					ret.append(max);
+				}
+			}
+			if (edge != null)
+				pos += al.delta; //TODO inclusion?
+		} while (true);
+		return ret.toString(); //TODO remove gaps (not before!)
 	}
 
 	/**
@@ -251,9 +315,10 @@ public class Sequencer{
 	 * @param a alignment of the first sequence
 	 * @param as first sequence
 	 * @param b second sequence
+	 * @param pos absolute position of the first sequence
 	 * @return b's alignment with a
 	 */
-	public static String getAlignment(String a, Sequence as, Sequence bs){
+	public static Alignment getAlignment(String a, Sequence as, Sequence bs, int pos){
 		StringBuilder r = new StringBuilder();
 		AlignmentPath p= as.getAlignmentPath(bs);
 		int i = a.length() - 1;
@@ -275,9 +340,12 @@ public class Sequencer{
 					r.append('-');
 			}
 		}
-		for (; i>=0; i--)
-			r.append(a.charAt(i));
-		return r.reverse().toString();
+		for (; j>=0; j--) {
+			for (; a.charAt(i)=='-'; i--)
+				r.append('-');
+			r.append(bs.get(j));
+		}
+		return new Alignment(r.reverse().toString(), i, pos+i+r.length());
 	}
 
 	/**

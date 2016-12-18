@@ -1,1 +1,19 @@
 \section{Consensus}
+
+La fin du premier noeud est ajoutée à une file de positions à traiter.
+Ensuite, une liste d'arcs est parcourue,
+le début et la position juste avant la fin de l'alignement (auquel des gaps ont
+pu être ajoutées selon les alignements précédents) sont ajoutées
+à la file de priorité. Dès qu'un alignement est décalé par rapport à celui qui
+le précède (ceci évite des problèmes liés aux fragments inclus),
+une position minimale est extraite de la file et indique jusqu'où
+dont être fait le vote. Les pointeurs dans les alignements sont incrémentés et
+dès lors qu'ils atteignent la taille de ceux-ci, l'alignement est retiré de
+la liste des alignements à traiter.
+
+Dans le pire des cas, on pourrait imaginer une suite de fragments préfixes les
+uns des autres, triés par ordre croissant de longueur. Le nombre de bases lues
+serait en $O(n^2)$ avec $n$ la longueur du dernier fragment,
+ce qui reste polynomial.
+
+En pratique, ils seront bien moins nombreux à être examinés en même temps.

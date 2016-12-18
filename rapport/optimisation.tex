@@ -1,57 +1,87 @@
 \section{Optimisations}
-Dans cette section, nous expliquerons les techniques que nous avons utilisé dans le but d'améliorer les performances de notre programme, en temps de calcul ou en mémoire.
+Dans cette section, nous expliquerons les techniques que nous avons utilisées dans le but d'améliorer les performances de notre programme, en temps de calcul ou en mémoire.
 
-\subsection{Classe complementary}
-Puisque certains fragments peuvent être le complémentaire inversé d'un fragment de la cible, alors nous devons créer et ajouter les complémentaires inversés de tous les fragments dans le graphe avant l'application de l'algorithme Greedy.
-Au lieu de créer ces fragments, nous associons à chaque Sequence $f$, un objet $\bar{f}$ qui hérite de Sequence et dont la fonction \texttt{get($i$)} retournera le $i$\textsuperscript{ème} symbole à partir de la fin de $f$ mais complémentarisé.
-Ceci afin d'éviter d'occuper deux fois la mémoire nécessaire pour les fragments chargés à partir du fichier.
+\subsection{Classe Complementary}
+Puisque certains fragments peuvent être le complémentaire inversé d'un fragment
+de la cible, nous devons créer et ajouter les complémentaires inversés de
+tous les fragments dans le graphe avant l'application de l'algorithme Greedy.
+Au lieu de créer ces fragments, nous associons à chaque séquence $f$ un objet
+$\bar{f}$ qui hérite de \texttt{Sequence} et dont la méthode \texttt{get($i$)}
+retournera le complémentaire du $i$\textsuperscript{ème} symbole
+à partir de la fin de $f$.
+Cela évite d'occuper deux fois la mémoire nécessaire
+pour les fragments chargés à partir du fichier.
 
 \subsection{Identifiant des fragments}
-Pour améliorer les performances de l'algorithme Greedy, un identifiant est donné à chaque fragment de cette manière:\\
-Soit $n$ le nombre de fragments chargés depuis le fichier. Soit $0 \le i < 2n$.
+Pour améliorer les performances de l'algorithme Greedy, chaque fragment est
+numéroté. Soient $n$ le nombre de fragments chargés depuis le fichier et $0 \le i < 2n$.
 \begin{itemize}
- \item \textbf{Si $i < n$}, Le fragment $i$ est le $(i+1)$\textsuperscript{ème} fragment chargé.
- \item \textbf{Si $i \ge n$}, Le fragment $i$ est le complémentaire inversé du fragment $i-n$.
+ \item Si $i < n$, le fragment $i$ est le $(i+1)$\textsuperscript{ème} fragment chargé.
+ \item Si $i \ge n$, le fragment $i$ est le complémentaire inversé du fragment $i-n$.
 \end{itemize}
-Aucun identifiant n'est enregistré en mémoire. Ils indiquent la position dans la liste de fragments.
-Et les noeuds du graphes sont maintenant représentés par un identifiant.
 
-Cela améliore les performances. En effet,\\
-Cela permet de remettre l'ensemble des arcs du chemin hamiltonien dans l'ordre.
-Lors de l'algorithme Greedy, chaque fois qu'un arc \arc{f}{g} est ajouté au chemin, on enregistre dans un tabeau (indicé à partir de 0) en position $f-1$ l'indice de l'arc dans le tableau où on vient de l'ajouter.
-Une fois l'algorithme Greedy terminé,\\
-On trouve en temps linéaire le premier fragment du chemin (c'est le seul dont le \texttt{in} est à \texttt{faux}).\\
-Puis en temps linéaire, on boucle en prenant chaque fois l'arc \arc{f}{g} suivant (on le trouve dans le tableau en position $f-1$) et le prochain arc se trouve dans le tableau en position $g-1$.\\
-Et donc remettre les arcs dans l'ordre se fait en $O(n)$ où $n$ est le nombre de fragments.
-Si les noeuds n'étaient pas des identifiants, il aurait fallu une recherche pour trouver l'arc suivant et donc on aurait eu un algorithme en $O\left(n^2\right)$.
+Les identifiants sont utilisés dans les arcs pour indicer la liste des fragments.
 
-De plus, lorsqu'un arc \arc{f}{g} est ajouté au chemin hamiltonien, trouver les complémentaires inversés de $f$ et $g$ pour mettre leur \texttt{in} et \texttt{out} à \texttt{vrai} se fait en $O(1)$.\\
-Ensuite, il n'y a plus besoin de recherche dans la liste de fragment pour chaque appel à la méthode \texttt{find} dans l'\texttt{UnionFind} si les noeuds dans l'\texttt{UnionFind} sont représentés par un fragment.
+Cela améliore les performances. En effet, cela permet de remettre l'ensemble
+des arcs du chemin hamiltonien dans l'ordre.
+Lors de l'algorithme Greedy, à chaque fois qu'un arc \arc{f}{g} est ajouté
+au chemin, on enregistre dans un tableau (indicé à partir de 0)
+en position $f-1$ l'indice de l'arc dans le tableau où on vient de l'ajouter.
+Une fois l'algorithme Greedy terminé, on trouve en temps linéaire
+le premier fragment du chemin (c'est le seul dont le flag \texttt{in} est faux).
+Ensuite, toujours en temps linéaire, on boucle en prenant chaque fois
+l'arc \arc{f}{g} suivant que l'on trouve en position $f-1$ et
+le prochain arc se trouve en position $g-1$.
+Ainsi, remettre les arcs dans l'ordre se fait en $O(n)$
+où $n$ est le nombre de fragments.
+Si les noeuds n'étaient pas des identifiants, il aurait fallu effectuer
+une recherche pour trouver l'arc suivant et
+on aurait donc eu un algorithme en $O\left(n^2\right)$.
 
-Nous aurions pu nous passer d'identifiant en créant un objet \texttt{Noeud} contenant un fragment, une référence vers le noeud du complémentaire inversé, la position de l'arc suivant dans le chemin, le parent dans l'\texttt{UnionFind}, \texttt{in} et \texttt{out}.
-Mais cela rend l'implémentation plus compliquée et beaucoup moins éléguante.
+De plus, lorsqu'un arc \arc{f}{g} est ajouté au chemin hamiltonien,
+trouver les complémentaires inversés de $f$ et $g$ pour mettre
+leur \texttt{in} et \texttt{out} à vrai se fait en $O(1)$.
+Ensuite, il n'y a plus besoin d'effectuer des recherches dans
+la liste de fragments pour chaque appel à la méthode \texttt{find}
+dans l'union-find si les noeuds sont représentés par un fragment.
+
+Nous aurions pu nous passer d'identifiant en créant un objet \texttt{Node}
+contenant un fragment, une référence vers le noeud du complémentaire inversé,
+la position de l'arc suivant dans le chemin,
+le parent dans l'union-find, \texttt{in} et \texttt{out} mais
+cela rend l'implémentation plus compliquée et beaucoup moins élégante.
 
 \subsection{Multithreading}
-Avant de passer à l'algorithme Greedy, il faut créer tous les arcs et donc calculer les scores d'alignement entre chaque pair de fragments.
-Tous les calculs de score peuvent se faire en parallèle. Deux méthodes de parallèlisations sont envisageables:
+Avant de passer à l'algorithme Greedy, il faut créer tous les arcs et donc
+calculer les scores d'alignement entre chaque paire de fragments.
+Tous les calculs de score peuvent se faire en parallèle.
+Deux méthodes de parallélisation sont envisageables:
 \begin{enumerate}
- \item Pour chaque thread on défini une part égale de l'ensemble des arcs à calculer.
- \item Chaque fois qu'un thread a calculé un arc, il s'en réserve un autre dans une mémoire partagée avec les autres threads.
+\item Pour chaque thread, on définit une part égale de l'ensemble des arcs à calculer.
+\item À chaque fois qu'un thread a calculé un arc, il pioche une autre tâche à
+	effectuer dans une mémoire partagée avec les autres threads.
+	C'est exactement le problème des producteurs/consommateurs. %FIXME formulation ?
 \end{enumerate}
-Nous avons choisi la premières méthodes car nous observons que les différences de temps de calcul entre chaque thread sont égales à 1 seconde près. %TODO refaire les tests et indiquer les résultats
-Ce qui signifie que leur charge sont équilibrées.
-Et de plus, beaucoup d'appels système auraient eu lieu si la deuxième méthodes était utilisée.
+Nous avons choisi la première méthode car nous observons que les différences
+de temps de calcul entre chaque thread sont identiques, à 1 seconde près,
+%TODO refaire les tests et indiquer les résultats
+ce qui signifie que leur charge de travail est équilibrée.
+De plus, beaucoup d'appels systèmes auraient eu lieu si la deuxième méthodes
+avait été utilisée.
 
 \subsection{Même score pour plusieurs arcs}
-Les arcs utilisés sont orientés. Le poid d'un arc \arc{f}{g} est le score de l'alignement où soit on aligne le suffixe de $f$ au préfixe de $g$, soit $f$ est inclu à $g$.
+Les arcs utilisés sont orientés. Le poids d'un arc \arc{f}{g} est
+le score de l'alignement où soit on aligne le suffixe de $f$ au préfixe de $g$,
+soit $f$ est inclus à $g$.
 Après avoir calculé la matrice d'alignement, ce score est le maximum des scores sur la dernière ligne.
-Mais ce score est aussi égal au score de \arc{\bar{g}}{\bar{f}} car l'alignement est exactement le même.
-Le maximum des scores de la dernière colonne de la matrice donne le score de \arc{g}{f} et donc aussi le score de \arc{\bar{f}}{\bar{g}}.
-4 scores peuvent donc être calculés avec une seule matrice d'alignement.
+Il correspond aussi au score de \arc{\bar{g}}{\bar{f}} car l'alignement est exactement le même.
+Le maximum des scores de la dernière colonne de la matrice donne celui de
+\arc{g}{f} et donc aussi celui de \arc{\bar{f}}{\bar{g}}.
+Quatre scores peuvent donc être calculés avec une seule matrice d'alignement.
 
 \subsection{Type des données} %TODO modification faite chez jason mais pas encore pushée
 La valeur d'un score peut être enregistré en 2 octets (\texttt{short} en Java).
 Effectivement, on considère que les fragments sont tous de taille $\le 1000$. %TODO donner la taille maximale d'un fragment
-Une borne inférieure au score est -2000 (que des gaps) %TODO pas oublier de changer si changement des constantes de score
+Une borne inférieure au score est -2000 (seulement des gaps) %TODO pas oublier de changer si changement des constantes de score
 et une borne supérieure est 1000 (alignement total).
-Un nombre en 2 octets se trouve entre -32768 et 32767.
+Un nombre signé stocké sur 2 octets se trouve entre -32768 et 32767.
