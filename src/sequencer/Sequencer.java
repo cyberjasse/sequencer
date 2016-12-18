@@ -244,11 +244,11 @@ public class Sequencer{
 	 * @param path A Hamiltonian path
 	 * @return A possible final consensus
 	 */
-	public static Sequence getConsensus(List<Sequence> frags, List<Edge> path){
+	public static String getConsensus(List<Sequence> frags, List<Edge> path){
 		StringBuilder ret = new StringBuilder();
 		Alignment al = null;
 		Iterator<Edge> it = path.iterator();
-		PriorityQueue<Marker> pq = new PriorityQueue<>(); //triggers votes
+		PriorityQueue<Integer> pq = new PriorityQueue<>(); //triggers votes
 		Set<Alignment> rem = new HashSet<>(); //we have to move pointers once!
 		int n = frags.size();
 		int pos = 0;
@@ -263,46 +263,43 @@ public class Sequencer{
 				if (al == null) {
 					//let's not forget the first sequence
 					al = new Alignment(a.toString(), 0, 0);
-					pq.add(new Marker(-1, al));
+					pq.add(al.endsAt);
 					rem.add(al);
 				}
 				al = getAlignment(al.aligned, a, b, pos);
-				pq.add(new Marker(pos, al));
-				pq.add(new Marker(-1, al));
+				pq.add(pos);
+				pq.add(al.endsAt);
 				rem.add(al);
 				go = al.delta > 0;
 			}
 			if (go) {
-				Marker top = pq.poll();
-				for (Alignment a: rem) {
+				Integer top = pq.poll();
+				while (pq.peek()!=null && pq.peek()==top)
+					//remove duplicate markers
+					pq.poll();
+				if (top == null)
+					break;
+				n = top - ret.length();
+				for (int i=0; i<n; i++) {
+					byte[] votes = new byte['T'+1];
+					for (Alignment a: rem) {
+						if (a.position >= 0)
+							votes[a.aligned.charAt(a.position)]++;
+						a.position++;
+						if (a.position == a.aligned.length())
+							rem.remove(a);
+					}
+					int max = '-';
+					for (int j='A'; j<='T'; i++)
+						if (votes[max] < votes[j])
+							max = j;
+					ret.append(votes[max]);
 				}
 			}
 			if (edge != null)
 				pos += al.delta; //TODO inclusion?
-		} while (al.delta == 0);
-		return new Sequence(ret.toString());
-	}
-
-	private static class Marker implements Comparable {
-		private final int start; //-1 means this is an end
-		public final Alignment alignment;
-
-		public Marker(int start, Alignment alignment) {
-			this.start = start;
-			this.alignment = alignment;
-		}
-
-		public int getPosition() {
-			if (start == -1)
-				return alignment.endsAt;
-			else
-				return start;
-		}
-
-		@Override
-		public int compareTo(Object other) {
-			return getPosition() - ((Marker)other).getPosition();
-		}
+		} while (true);
+		return ret.toString(); //TODO remove gaps (not before!)
 	}
 
 	/**
