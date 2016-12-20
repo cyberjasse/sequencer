@@ -277,7 +277,7 @@ public class Sequencer{
 
 		//build the consensus
 		StringBuilder ret = new StringBuilder();
-		Set<Alignment> started = new HashSet<>();
+		List<Alignment> started = new ArrayList<>();
 		pos = pq.peek().pos;
 		while (pq.size() > 0) {
 			Marker top = pq.poll();
