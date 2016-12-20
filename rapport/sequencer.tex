@@ -24,7 +24,16 @@ réellement les supprimer, il suffit de décrémenter de deux le nombre d'ensemb
 Ce compteur d'ensembles distincts est utilisé pour arrêter l'algorithme
 lorsqu'il n'y a plus qu'un ensemble dans l'\texttt{UnionFind}.
 
-\section{Les inclusions de fragments}%TODO expliquer comment on gère les inclusions de fragment.
+\section{Les inclusions de fragments}
+Dans le calcul du consensus, la première chose qui est faite est de calculer
+l'ordre de traitement des fragments. L'alignement de $s$ et $t$ calcule aussi
+$\delta$, l'écart entre le premier nucléotide de $t$ et celui de $s$.
+$t$ commence avant $s$ (et $t \subseteq s$) si et seulement si $\delta<0$.
+
+Nous aurions pu nous simplifier la tâche et supprimer les fragments inclus à
+d'autres mais leurs voix auraient été échangées contre un calcul plus simple
+du consensus.
+%TODO exemple simple ?
 
 \input{optimisation}
 \end{document}
