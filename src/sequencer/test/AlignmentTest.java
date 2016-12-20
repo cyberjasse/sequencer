@@ -87,4 +87,30 @@ public class AlignmentTest{
 		a = new Alignment("TAT--CTAAGG", -1, 9, -1);
 		assertEquals(a, Sequencer.getAlignment("AT--CT", s, t, 0));
 	}
+	
+	@Test
+	public void forConsensus1Test(){
+		Sequence s1 = new Sequence("atcccggg");
+		Sequence s2 = new Sequence("ccgggatat");
+		/*
+		ATCCCGGG
+		   CCGGGATAT
+		consensus should be "atcccgggatat"*/
+		Alignment al = Sequencer.getAlignment(s1.toString(), s1, s2, 0);
+		assertEquals("ccgggatat",al.aligned);
+		assertEquals(3, getDelta(s1,s2));
+	}
+
+	@Test
+	public void forConsensus2Test(){
+		Sequence s2 = new Sequence("ccgggatat");
+		Sequence s3 = new Sequence("atatcg");
+		Alignment al = Sequencer.getAlignment(s2.toString(), s2, s3, 0);
+		assertEquals("atatcg",al.aligned);
+		assertEquals(5, getDelta(s2,s3));
+	}
+
+	private int getDelta(Sequence s1, Sequence s2){
+		return Sequencer.getAlignment(s1.toString(), s1, s2, 0).delta;
+	}
 }
