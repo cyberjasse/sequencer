@@ -271,8 +271,8 @@ public class Sequencer{
 			Sequence a = getById(frags, e.from);
 			Sequence b = getById(frags, e.to);
 			al = getAlignment(al.aligned, a, b, pos);
-			pq.add(new Marker(pos, al));
 			pos += al.delta;
+			pq.add(new Marker(pos, al));
 		}
 
 		//build the consensus
