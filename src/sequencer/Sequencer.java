@@ -270,7 +270,8 @@ public class Sequencer{
 					b = frags.get(edge.to);
 				if (al == null) {
 					//let's not forget the first sequence
-					al = new Alignment(a.toString(), 0, 0);
+					al = new Alignment(a.toString(), 0, 0, 0);
+					//FIXME store the start marker anyway?
 					pq.add(al.endsAt - 1);
 					rem.add(al);
 				}
@@ -345,7 +346,12 @@ public class Sequencer{
 				r.append('-');
 			r.append(bs.get(j));
 		}
-		return new Alignment(r.reverse().toString(), i, pos+i+r.length());
+		String ret = r.reverse().toString();
+		int endsAt = pos+i+r.length()-1;
+		if (p.delta < 0) //inclusion: i==0
+			return new Alignment(ret, p.delta+1, endsAt-1, pos+p.delta+1);
+		else
+			return new Alignment(ret, i, endsAt, -i);
 	}
 
 	/**

@@ -6,19 +6,21 @@ public class Alignment {
 	public int position;
 	public final int endsAt;
 
-	public Alignment(String aligned, int delta, int endsAt) {
+	public Alignment(String aligned, int delta, int endsAt, int pos) {
 		this.aligned = aligned;
 		this.delta = delta;
-		this.position = -delta;
 		this.endsAt = endsAt;
+		this.position = pos;
 	}
 
 	@Override
 	public boolean equals(Object other) {
 		if (other instanceof Alignment) {
 			Alignment o = (Alignment)other;
-			//TODO compare endsAt too (and update the unit test)!
-			return o.aligned.equals(aligned) && o.delta==delta;
+			return o.aligned.equals(aligned) &&
+				o.delta==delta &&
+				o.endsAt==endsAt &&
+				o.position==position;
 		}
 		else
 			return false;
