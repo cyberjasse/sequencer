@@ -72,11 +72,15 @@ avait été utilisée.
 \subsection{Même score pour plusieurs arcs}
 Les arcs utilisés sont orientés. Le poids d'un arc \arc{f}{g} est
 le score de l'alignement où soit on aligne le suffixe de $f$ au préfixe de $g$,
-soit $f$ est inclus à $g$.
-Après avoir calculé la matrice d'alignement, ce score est le maximum des scores sur la dernière ligne.
-Il correspond aussi au score de \arc{\bar{g}}{\bar{f}} car l'alignement est exactement le même.
-Le maximum des scores de la dernière colonne de la matrice donne celui de
-\arc{g}{f} et donc aussi celui de \arc{\bar{f}}{\bar{g}}.
+soit $f$ est inclus à $g$. Calculons la matrice d'alignement à $|f|+1$ lignes et $|g|+1$ colonnes.
+Le score de \arc{f}{g} est le maximum des scores sur la dernière ligne.
+Il correspond aussi au score de \arc{\bar{g}}{\bar{f}} car l'alignement est exactement le même.\\
+
+Le maximum des scores de la dernière colonne de la matrice donne celui de \arc{g}{f}.
+En effet, si nous effectuons un alignement à partir d'un position sur la dernière colonne,
+un suffixe de $g$ est entièrement aligné sur une partie de $f$.
+Nous avons bien que soit le suffixe de $g$ est aligné avec le préfixe de $f$, soit $g$ est inclus à $f$.
+Et puisque nous avons le score de \arc{g}{f}, nous avons aussi celui de \arc{\bar{f}}{\bar{g}}.
 Quatre scores peuvent donc être calculés avec une seule matrice d'alignement.
 
 \subsection{Typage des scores}
