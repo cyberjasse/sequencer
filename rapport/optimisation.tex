@@ -92,3 +92,12 @@ Une borne inférieure au score est -2732 (seulement des gaps)
 et une borne supérieure est 1366 (alignement total).
 Par conséquent, un \texttt{short} convient puisque sa valeur peut se trouver
 entre -32768 et 32767.
+
+\section{Pistes pour optimisations}
+\subsection{Encodage des nucléotides}
+Les fragments sont enregistrés dans un objet de type \texttt{String}.
+Mais un \texttt{String} en java est encodé en \texttt{UTF-16}.
+Chaque caractère est donc enregistré sur 2 octets alors que 1 suffit.
+Mais au vu de la taille des fichiers fasta fournis, encodés en \texttt{us-ascii},
+Au plus 2mo sont occupés en mémoire par les fragments chargés.
+Ce qui est négligeable par rapport à la consommation maximale de mémoire de notre programme (3,5Go).
