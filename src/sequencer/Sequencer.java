@@ -241,74 +241,89 @@ public class Sequencer{
 	}
 
 	/**
+	 * Get a sequence (or its reverted complementary) from a list of Sequences
+	 * @param id index
+	 */
+	private static Sequence getById(List<Sequence> list, int id){
+		int n = list.size();
+		if (id > n)
+			return list.get(id - n).getComplementary();
+		else
+			return list.get(id);
+	}
+
+	/**
 	 * Compute a consensus
 	 * @param fragments The list of fragments
 	 * @param path A Hamiltonian path
 	 * @return A possible final consensus
 	 */
 	public static String getConsensus(List<Sequence> frags, List<Edge> path){
-		StringBuilder ret = new StringBuilder();
-		Alignment al = null;
+		//populate the marker queue
 		Iterator<Edge> it = path.iterator();
-		PriorityQueue<Integer> pq = new PriorityQueue<>(); //triggers votes
-		Set<Alignment> rem = new HashSet<>(); //we have to move pointers once!
-		int n = frags.size();
+		PriorityQueue<Marker> pq = new PriorityQueue<>();
+		//let's not forget the first sequence
+		Alignment al = new Alignment(getById(frags, path.get(0).from).toString(), 0, 0, 0);
+		pq.add(new Marker(0, al));
 		int pos = 0;
-		do {
-			Edge edge = null;
-			boolean go = true;
-			if (it.hasNext()) {
-				edge = it.next();
-				Sequence a, b;
-				if (edge.from > n)
-					a = frags.get(edge.from - n).getComplementary();
-				else
-					a = frags.get(edge.from);
-				if (edge.to > n)
-					b = frags.get(edge.to - n).getComplementary();
-				else
-					b = frags.get(edge.to);
-				if (al == null) {
-					//let's not forget the first sequence
-					al = new Alignment(a.toString(), 0, 0, 0);
-					//FIXME store the start marker anyway?
-					pq.add(al.endsAt - 1);
-					rem.add(al);
-				}
-				al = getAlignment(al.aligned, a, b, pos);
-				pq.add(pos);
-				pq.add(al.endsAt - 1);
-				rem.add(al);
-				go = al.delta > 0;
-			}
-			if (go) {
-				Integer top = pq.poll();
-				while (pq.peek()!=null && pq.peek()==top)
-					//remove duplicate markers
-					pq.poll();
-				if (top == null)
-					break;
-				n = top - ret.length();
-				for (int i=0; i<n; i++) {
-					byte[] votes = new byte['T'+1];
-					for (Alignment a: rem) {
-						if (a.position >= 0)
-							votes[a.aligned.charAt(a.position)]++;
+		while (it.hasNext()) {
+			Edge e = it.next();
+			Sequence a = getById(frags, e.from);
+			Sequence b = getById(frags, e.to);
+			al = getAlignment(al.aligned, a, b, pos);
+			pq.add(new Marker(pos, al));
+			pos += al.delta;
+		}
+
+		//build the consensus
+		StringBuilder ret = new StringBuilder();
+		Set<Alignment> started = new HashSet<>();
+		pos = pq.peek().pos;
+		while (pq.size() > 0) {
+			Marker top = pq.poll();
+			while (pq.peek()!=null && pq.peek().equals(top))
+				//remove duplicate markers
+				pq.poll();
+			top.alignment.position = 0;
+			started.add(top.alignment);
+			while ((pq.peek()==null && started.size()>0) || (pq.peek()!=null && pq.peek().pos>pos)) {
+				byte[] votes = new byte['t'+1];
+				for (Iterator<Alignment> at = started.iterator(); at.hasNext();) {
+					Alignment a = at.next();
+					if (a.position == a.aligned.length())
+						at.remove();
+					else {
+						votes[a.aligned.charAt(a.position)]++;
 						a.position++;
-						if (a.position == a.aligned.length())
-							rem.remove(a);
 					}
-					int max = '-';
-					for (int j='A'; j<='T'; i++)
-						if (votes[max] < votes[j])
-							max = j;
-					ret.append(max);
 				}
+				char max = '-';
+				//TODO unfold this loop? What about ties?
+				for (char j='a'; j<='t'; j++)
+					if (votes[max] < votes[j])
+						max = j;
+				if (max != '-')
+					//don't output gaps
+					ret.append(max);
+				pos++;
 			}
-			if (edge != null)
-				pos += al.delta; //TODO inclusion?
-		} while (true);
-		return ret.toString(); //TODO remove gaps (not before!)
+		}
+		return ret.toString();
+	}
+
+	private final static class Marker implements Comparable<Marker> {
+		public final Alignment alignment;
+		public final int pos;
+
+		public Marker(int pos, Alignment alignment) {
+			this.alignment = alignment;
+			this.pos = pos;
+		}
+
+		@Override
+		public int compareTo(Marker other) {
+			return pos - other.pos;
+		}
 	}
 
 	/**
