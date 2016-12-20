@@ -246,7 +246,7 @@ public class Sequencer{
 	 */
 	private static Sequence getById(List<Sequence> list, int id){
 		int n = list.size();
-		if (id > n)
+		if (id >= n)
 			return list.get(id - n).getComplementary();
 		else
 			return list.get(id);
