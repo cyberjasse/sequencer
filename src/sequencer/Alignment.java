@@ -30,4 +30,9 @@ public class Alignment {
 	public int hashCode() {
 		return aligned.hashCode() ^ position;
 	}
+
+	@Override
+	public String toString() {
+		return aligned+", d "+delta+", e "+endsAt+", p "+position;
+	}
 }
