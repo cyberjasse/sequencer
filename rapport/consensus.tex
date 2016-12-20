@@ -1,19 +1,42 @@
 \section{Consensus}
+Les alignements deux à deux ne peuvent pas être utilisés tels quels :
+d'une part, les gaps doivent parfois être reportés et
+d'autre part, un vote doit être effectué lorsque des fragments se chevauchent.
 
-La fin du premier noeud est ajoutée à une file de positions à traiter.
-Ensuite, une liste d'arcs est parcourue,
-le début et la position juste avant la fin de l'alignement (auquel des gaps ont
-pu être ajoutées selon les alignements précédents) sont ajoutées
-à la file de priorité. Dès qu'un alignement est décalé par rapport à celui qui
-le précède (ceci évite des problèmes liés aux fragments inclus),
-une position minimale est extraite de la file et indique jusqu'où
-dont être fait le vote. Les pointeurs dans les alignements sont incrémentés et
-dès lors qu'ils atteignent la taille de ceux-ci, l'alignement est retiré de
-la liste des alignements à traiter.
+\subsection{Report des gaps et ordonnancement}
+Les fragments sont d'abord ordonnés par position croissante,
+relative à celle du premier fragment.
+Pour ce faire, le premier fragment est ajouté à la position 0 avant de
+parcourir toutes les arcs \arc{s}{t} du chemin hamiltonien :
+les gaps de l'alignement précédent sont ajoutés à celui de $t$ avec $s$ et
+l'écart entre les alignements de $s$ et de $t$ (négatif si $s\subseteq t$) est
+ajouté à la position courante. Cette position et ce nouvel alignement de $t$
+sont ajoutés à une file de priorité.
+
+Le calcul de l'alignement prend toujours un temps en $O(n^2)$, avec $n$ la
+longueur du plus grand fragment. Le traitement dans \texttt{getAlignment}
+est en $O(n)$ (parcours de toute la diagonale, dans le pire des cas).
+L'ajout de $n$ éléments à une file de priorité se fait en $n\times O(1)=O(n)$.
+Au total, on obtient du $O(n^2)$.
+
+\subsection{Construction du contig}
+Ensuite, on prend l'alignement au sommet de la file de priorité
+(s'il est répété, on supprime ses répétitions) et on l'ajoute à
+la liste des alignements en cours d'utilisation.
+Ensuite, on itère tant qu'on n'a pas atteint le prochain élément de la file
+(ou, si elle est vide, traité toute la liste de fragments) :
+un vote est fait, les pointeurs sont avancés et les alignements terminés (ceux
+dont le pointeur a dépassé la fin) sont retirés de la liste.
+On recommence le processus jusqu'à ce que la file soit vide.
+
+Le vote se fait par majorité et en cas d'égalité, $gap < A < C < G < T$.
 
 Dans le pire des cas, on pourrait imaginer une suite de fragments préfixes les
-uns des autres, triés par ordre croissant de longueur. Le nombre de bases lues
+uns des autres (l'entrée serait un genre de grand escalier descendant),
+triés par ordre croissant de longueur. Le nombre de bases lues
 serait en $O(n^2)$ avec $n$ la longueur du dernier fragment,
-ce qui reste polynomial.
+ce qui reste polynomial : au premier vote, on regarde $n$ nucléotides, au
+second, $n-1$... et par la formule de Gauss, on trouve une complexité en
+$n\times(n+1)/2=O(n^2)$.
 
 En pratique, ils seront bien moins nombreux à être examinés en même temps.
