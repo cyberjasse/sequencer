@@ -36,7 +36,7 @@ public class Sequencer{
 				List<Sequence> fragments = load(args[0]);
 				System.out.println(" loaded "+fragments.size()+" fragments.");
 				System.out.println("Computing edges...");
-				List<Edge> edges = allEdges(fragments, 2);
+				List<Edge> edges = allEdges(fragments, 4);
 				System.out.println("Computing the Hamiltonian path...");
 				List<Edge> path = hamiltonian(edges, fragments.size());
 				char num = args[0].substring(args[0].length()-7).charAt(0);
