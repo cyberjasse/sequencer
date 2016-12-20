@@ -11,7 +11,6 @@ public class Sequence{
 	private static final short GAP_SCORE = -2;//-g
 	private static final short MATCH_SCORE = 1;
 	private static final short MISMATCH_SCORE = -1;
-	private static final short NEGATIVE_INFINITY = -10000;//FIXME short in java does not support a real infinity value. Double does but take too much memory
 
 	/**
 	 * @param seq The DNA fragment
@@ -24,29 +23,6 @@ public class Sequence{
 	protected Sequence(String seq, Sequence comp){
 		fragment = seq;
 		complementary = comp;
-	}
-
-	/**
-	 * Print a short[][] table for debugging
-	 * @param tab The table
-	 * @param nrows The number of rows
-	 * @param ncols The number of column
-	 */
-	private void printtab(short[][] tab, short nrows, short ncols){
-		for(short i=0 ; i<nrows ; i++){
-			for(short j=0 ; j<ncols ; j++){
-				short num = tab[i][j];
-				if(num <= NEGATIVE_INFINITY){
-					System.out.print(" -IY");
-				}
-				else{
-					String st = Short.toString(num);
-					if(st.length() > 3) System.out.print(st = " BIG");
-					else System.out.print(String.format(" %1$03d",num));
-				}
-			}
-			System.out.print("\n");
-		}
 	}
 
 	/**
