@@ -99,7 +99,9 @@ public class Sequence{
 		short j = start;
 		short i = (short)(matrix.length-1);//The number of lines -1
 		short score = matrix[i][j];
-		short maxsize = (short)Math.max(matrix.length , matrix[0].length);
+		//The worst-case size of the path
+		//In a worst case, the path pass along all the last column than pass along all a line
+		short maxsize = (short)(matrix.length + matrix[0].length);
 		maxsize--;
 		byte[] pathfg = new byte[maxsize];
 		short pathsize = 0;
