@@ -88,7 +88,7 @@ public class Sequencer{
 	 * @return A list of all edges between all pairs of Sequence in fragments and their reverted complementary.
 	 * If the length of fragments is N, then N+i is the reverted complementary of the ith fragment. Indexed from 0.
 	 */
-	public static List<Edge> allEdges(List<Sequence> fragments, int nThreads){//TODO Paralelize
+	public static List<Edge> allEdges(List<Sequence> fragments, int nThreads){
 		ArrayList<Edge> edges = new ArrayList<Edge>(4*((fragments.size()*fragments.size()) - fragments.size()));
 		//build all edges
 		if(nThreads == 1){
