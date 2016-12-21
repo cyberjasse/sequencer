@@ -51,7 +51,7 @@ la position de l'arc suivant dans le chemin,
 le parent dans l'union-find, \texttt{in} et \texttt{out} mais
 cela rend l'implémentation plus compliquée et beaucoup moins élégante.
 
-\subsection{Multithreading}
+\subsection{Multithreading}\label{multithreading}
 Avant de passer à l'algorithme Greedy, il faut créer tous les arcs et donc
 calculer les scores d'alignement entre chaque paire de fragments.
 Tous les calculs de score peuvent se faire en parallèle.
@@ -69,7 +69,7 @@ ce qui signifie que leur charge de travail est équilibrée.
 De plus, beaucoup d'appels systèmes auraient eu lieu si la deuxième méthodes
 avait été utilisée.
 
-\subsection{Même score pour plusieurs arcs}
+\subsection{Même score pour plusieurs arcs}\label{sec:1m4s}
 Les arcs utilisés sont orientés. Le poids d'un arc \arc{f}{g} est
 le score de l'alignement où soit on aligne le suffixe de $f$ au préfixe de $g$,
 soit $f$ est inclus à $g$. Calculons la matrice d'alignement à $|f|+1$ lignes et $|g|+1$ colonnes.
@@ -88,6 +88,7 @@ La valeur d'un score peut être représentée sur 2 octets (\texttt{short} en Ja
 Effectivement, la taille maximale de fragment pour toutes les collections qui
 nous ont été fournies est de 1366.
 %TODO pas oublier de changer si changement des constantes de score
+%TODO on peut aussi changer les Identifiant en short
 Une borne inférieure au score est -2732 (seulement des gaps)
 et une borne supérieure est 1366 (alignement total).
 Par conséquent, un \texttt{short} convient puisque sa valeur peut se trouver
