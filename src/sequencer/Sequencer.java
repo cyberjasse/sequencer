@@ -42,8 +42,7 @@ public class Sequencer{
 				char num = args[0].substring(args[0].length()-7).charAt(0);
 				System.out.println("Computing the consensus...");
 				String consensus = getConsensus(fragments, path);
-				//FIXME what is our group number?
-				save(consensus, "HUYSMANS-BURYcollection"+num, num, "1");
+				save(consensus, "HUYSMANS-BURYcollection"+num, num, "5");
 			}
 			catch (Exception e) {
 				e.printStackTrace();
