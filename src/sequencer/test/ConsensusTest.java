@@ -31,8 +31,8 @@ public class ConsensusTest{
 		ATCCCGGG
 		   CCGGGATAT
 		consensus should be "atcccgggatat"*/
-		String consensus = Sequencer.getConsensus(frags,buildPath(1));
-		assertEquals("atcccgggatat",consensus);
+		Sequence consensus = Sequencer.getConsensus(frags,buildPath(1));
+		assertEquals("atcccgggatat",consensus.toString());
 	}
 
 	@Test
@@ -46,8 +46,8 @@ public class ConsensusTest{
 		   CCGGGATAT
 		        ATATCG
 		consensus should be "atcccgggatatcg"*/
-		String consensus = Sequencer.getConsensus(frags,buildPath(2));
-		assertEquals("atcccgggatatcg",consensus);
+		Sequence consensus = Sequencer.getConsensus(frags,buildPath(2));
+		assertEquals("atcccgggatatcg",consensus.toString());
 	}
 
 	@Test
@@ -55,8 +55,8 @@ public class ConsensusTest{
 		List<Sequence> frags = new ArrayList<>(2);
 		frags.add( new Sequence("atcccggg"));
 		frags.add( new Sequence("atcccgggatat"));
-		String consensus = Sequencer.getConsensus(frags,buildPath(1));
-		assertEquals("atcccgggatat",consensus);
+		Sequence consensus = Sequencer.getConsensus(frags,buildPath(1));
+		assertEquals("atcccgggatat",consensus.toString());
 	}
 
 	@Test
@@ -67,8 +67,8 @@ public class ConsensusTest{
 		List<Sequencer.Edge> path = new ArrayList<>(1);
 		short w=0;
 		path.add(new Sequencer.Edge(0,1+2,w));
-		String consensus = Sequencer.getConsensus(frags,path);
-		assertEquals("atatcgcg",consensus);
+		Sequence consensus = Sequencer.getConsensus(frags,path);
+		assertEquals("atatcgcg",consensus.toString());
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class ConsensusTest{
 		frags.add( new Sequence("cgatcgatgg"));
 		frags.add( new Sequence("gatggccccat"));
 		frags.add( new Sequence("ccccatgg"));
-		String consensus = Sequencer.getConsensus(frags,buildPath(4));
-		assertEquals("atcccgatcgatggccccatgg",consensus);
+		Sequence consensus = Sequencer.getConsensus(frags,buildPath(4));
+		assertEquals("atcccgatcgatggccccatgg",consensus.toString());
 	}
 }

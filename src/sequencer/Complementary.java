@@ -26,4 +26,9 @@ public class Complementary extends Sequence {
 			default : return 'c';
 		}
 	}
+
+	@Override
+	public String toString() {
+		return null; //crashing is better than returning something incorrect
+	}
 }

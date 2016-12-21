@@ -1,5 +1,7 @@
 *.class
 fragments
+*.fasta
+*.dat
 *.swp
 reports
 

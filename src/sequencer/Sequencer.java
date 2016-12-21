@@ -1,11 +1,6 @@
 package sequencer;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.Comparable;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,41 +18,13 @@ import java.lang.management.ThreadMXBean;
  */
 public class Sequencer{
 	/**
-	 * Enter the path of the fragments file as first parameter
-	 */
-	public static void main(String args[]){
-		if(args.length < 1){
-			System.err.println("usage: java -jar sequencer.jar collection3.fasta");
-			System.exit(1);
-		}
-		else{
-			try {
-				System.out.print("Loading fragments...");
-				List<Sequence> fragments = load(args[0]);
-				System.out.println(" loaded "+fragments.size()+" fragments.");
-				System.out.println("Computing edges...");
-				List<Edge> edges = allEdges(fragments, 4);
-				System.out.println("Computing the Hamiltonian path...");
-				List<Edge> path = hamiltonian(edges, fragments.size());
-				char num = args[0].substring(args[0].length()-7).charAt(0);
-				System.out.println("Computing the consensus...");
-				String consensus = getConsensus(fragments, path);
-				save(consensus, "HUYSMANS-BURYcollection"+num, num, "5");
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
 	 * Compute a part of all edges and their weight
 	 * @param divisor How much the work is divided. It computes 1/divisor of all paths
 	 * @param part What part of the work to compute. Indexed from 0
 	 * @param fragments
 	 * @param edges The list to add edges
 	 */
-	private static void computeEdges(int divisor, int part, List<Sequence> fragments, ArrayList<Edge> edges){
+	private static void computeEdges(int divisor, int part, List<Sequence> fragments, List<Edge> edges){
 		ThreadMXBean bean = ManagementFactory.getThreadMXBean();
 		long startTime = bean.getCurrentThreadCpuTime();
 		int i,j;
@@ -88,7 +55,7 @@ public class Sequencer{
 	 * If the length of fragments is N, then N+i is the reverted complementary of the ith fragment. Indexed from 0.
 	 */
 	public static List<Edge> allEdges(List<Sequence> fragments, int nThreads){
-		ArrayList<Edge> edges = new ArrayList<Edge>(4*((fragments.size()*fragments.size()) - fragments.size()));
+		List<Edge> edges = new ArrayList<Edge>(4*((fragments.size()*fragments.size()) - fragments.size()));
 		//build all edges
 		if(nThreads == 1){
 			computeEdges(nThreads, 0, fragments, edges);
@@ -180,63 +147,12 @@ public class Sequencer{
 		}
 		//build the path. Ordered this time
 		i=start;
-		ArrayList<Edge> hamiltonian = new ArrayList<Edge>( nSequences-1);
+		List<Edge> hamiltonian = new ArrayList<Edge>( nSequences-1);
 		while(out[i]){//while we don't reach the end of the path
 			hamiltonian.add(nextEdges[i]);
 			i = nextEdges[i].to;
 		}
 		return hamiltonian;
-	}
-
-	/**
-	 * save a String in a fasta file
-	 * @param sequence The string to save
-	 * @param filename The name of the file without the '.fasta' sufix.
-	 * @param numCollection The number of the collection
-	 * @param numGroup The number of our group
-	 */
-	public static void save(String sequence, String filename, char numCollection, String numGroup)
-			throws FileNotFoundException, IOException {
-		PrintWriter output = new PrintWriter(filename+".fasta");
-		int len = sequence.length();
-		output.println(">Groupe-"+numGroup+" Collection "+numCollection+" Longueur "+Integer.toString(len));
-		int i;
-		for (i=80; i<len; i+=80)
-			//we have at least 80 characters to print
-			output.println(sequence.substring(i-80, i));
-		//print the rest (< 80 characters)
-		output.println(sequence.substring(i-80));
-		output.close();
-	}
-
-	/**
-	 * Load a fasta file. The inverted complementary of these fragments aren't
-	 * included but you can get them using #Sequence.getComplementary().
-	 * @param name The path of the file
-	 * @return A list of loaded fragments.
-	 */
-	public static List<Sequence> load(String name)
-			throws FileNotFoundException, IOException {
-		List<Sequence> fragments = new ArrayList<Sequence>();
-		BufferedReader input = new BufferedReader(new FileReader(name));
-		StringBuilder current_sequence = new StringBuilder();
-		int c;
-		do {
-			c = input.read();
-			if (c==-1 || c == '>') {
-				if (current_sequence.length() > 0) {
-					fragments.add(new Sequence(current_sequence.toString()));
-					current_sequence = new StringBuilder();
-				}
-				if (c == '>')
-					input.readLine(); //trash it
-			}
-			else {
-				current_sequence.append((char)c);
-				current_sequence.append(input.readLine());
-			}
-		} while (c != -1);
-		return fragments;
 	}
 
 	/**
@@ -257,7 +173,7 @@ public class Sequencer{
 	 * @param path A Hamiltonian path
 	 * @return A possible final consensus
 	 */
-	public static String getConsensus(List<Sequence> frags, List<Edge> path){
+	public static Sequence getConsensus(List<Sequence> frags, List<Edge> path){
 		//populate the marker queue
 		Iterator<Edge> it = path.iterator();
 		PriorityQueue<Marker> pq = new PriorityQueue<>();
@@ -307,7 +223,7 @@ public class Sequencer{
 				pos++;
 			}
 		}
-		return ret.toString();
+		return new Sequence(ret.toString());
 	}
 
 	private final static class Marker implements Comparable<Marker> {
@@ -401,9 +317,9 @@ public class Sequencer{
 		/**What part of the work to compute*/
 		private final int part;
 		/**The list to add computed edges*/
-		private final ArrayList<Edge> edges;
+		private final List<Edge> edges;
 
-		public EdgeComputer(List<Sequence> in, ArrayList<Edge> out, int nThreads, int part){
+		public EdgeComputer(List<Sequence> in, List<Edge> out, int nThreads, int part){
 			fragments = in;
 			edges = out;
 			divisor = nThreads;

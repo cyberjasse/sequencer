@@ -8,7 +8,7 @@
 	<property name="test.src" value="**/*Test.java" />
 	<property name="test.bin" value="**/*Test.class" />
 	<property name="root-pkg" value="sequencer" />
-	<property name="main-class" value="${root-pkg}.Sequencer" />
+	<property name="main-class" value="${root-pkg}.Main" />
 	<property name="jar.dir" value="." />
 	<property name="jar.name" value="${jar.dir}/sequencer.jar" />
 	
