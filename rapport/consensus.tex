@@ -1,9 +1,9 @@
-\section{Consensus}
+\subsection{Consensus}
 Les alignements deux à deux ne peuvent pas être utilisés tels quels :
 d'une part, les gaps doivent parfois être reportés et
 d'autre part, un vote doit être effectué lorsque des fragments se chevauchent.
 
-\subsection{Report des gaps et ordonnancement}
+\subsubsection{Report des gaps et ordonnancement}
 Les fragments sont d'abord ordonnés par position croissante,
 relative à celle du premier fragment.
 Pour ce faire, le premier fragment est ajouté à la position 0 avant de
@@ -19,7 +19,7 @@ est en $O(n)$ (parcours de toute la diagonale, dans le pire des cas).
 L'ajout de $n$ éléments à une file de priorité se fait en $n\times O(1)=O(n)$.
 Au total, on obtient du $O(n^2)$.
 
-\subsection{Construction du contig}
+\subsubsection{Construction du contig}
 Ensuite, on prend l'alignement au sommet de la file de priorité
 (s'il est répété, on supprime ses répétitions) et on l'ajoute à
 la liste des alignements en cours d'utilisation.
@@ -40,3 +40,20 @@ second, $n-1$... et par la formule de Gauss, on trouve une complexité en
 $n\times(n+1)/2=O(n^2)$.
 
 En pratique, ils seront bien moins nombreux à être examinés en même temps.
+
+\subsubsection*{Les inclusions de fragments}
+Pour rappel, si nous avons deux fragments $f$ et $g$ et que lors de l'alignement, $f$ est inclus à $g$,
+alors on a un arc \arc{f}{g} car le sens de l'arc signifie juste que l'alignement se termine à la fin de $f$.
+Dans le calcul du consensus, à la première étape, celle qui consiste à calculer l'ordre de traitement des fragments,
+nous recherchons pour chaque alignement, $\Delta$, la position du début de l'alignement à partir de la position du premier caractère de $f$.
+Et cette position peut donc être négative dans le cas où $f$ est inclus à $g$ et que l'alignement commence avant le premier caractère de $f$.\\
+
+En obtenant le $\Delta$ pour chaque alignement, nous pouvons donc obtenir une file de priorité contenant, dans l'ordre, les positions absolues de débuts d'alignements.
+Par position absolue, nous entendons la position dans le contig sans suppression de gap.
+Cette file de priorité nous premetra donc de savoir à partir de quelle position le nombre d'alignement à prendre en compte pour le consensus d'un symbole change.\\
+
+
+Nous aurions pu nous simplifier la tâche et supprimer les fragments inclus à
+d'autres mais leurs voix auraient été échangées contre un calcul plus simple
+du consensus.
+%TODO exemple simple ?

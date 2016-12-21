@@ -9,10 +9,44 @@
 \begin{document}
 \input{titlepage}
 \input{introduction}
-\input{consensus}
 
-\section{Les complémentaires inversés dans l'algorithme Greedy}%explique comment on gère la suppressions des complémentaires inversés
-Au cours de l'exécution de l'algorithme glouton, lorsqu'un arc est ajouté au chemin hamiltonien, les complémentaires inversés de ses noeuds ne doivent plus être pris en compte.
+\section{Répartition des tâches}
+\noindent Guillaume \textsc{Huysmans} s'est chargé de:
+\begin{itemize}
+ \item Chargement d'un fichier fasta
+ \item Consensus et contig final à partir d'un chemin hamiltonien
+ \item Parsing de la ligne de commande
+\end{itemize}
+\noindent Tandis que Jason \textsc{Bury} s'est chargé de:
+\begin{itemize}
+ \item Création de tous les arcs et leur poid
+ \item Algorithme Greedy et chemin hamiltonien
+ \item Écriture d'un fichier fasta
+\end{itemize}
+
+\section{Démarche}
+Notre programme fonctionne en 5 étapes:
+\begin{enumerate}
+ \item Chargement des fragments
+ \item Création des arcs
+ \item Algorithme glouton
+ \item Consensus
+ \item Écriture du contig final
+\end{enumerate}
+
+\subsection{Création des arcs}
+Après avoir chargés les fragments et leur complémentaires inversés, il faut créer tous les arcs avant de passer à l'algorithme Greedy.
+Les arcs seront orientés. Le sens d'un arc de $f$ à $g$ signifie que\\
+soit l'alignement aligne le suffixe de $f$ avec le préfixe de $g$,\\
+soit l'alignement inclu $f$ dans $g$.\\
+Pour obtenir le poid d'un arc \arc{f}{g},
+on calcul d'abord la matrice d'alignement semi-global entre $f$ et $g$ où chaque ligne correspond à un symbole de $f$.
+Le score est le maximum des scores de la dernière ligne.
+En réalité il n'est pas nécessaire de calculer toutes les matrices d'alignement car on peut obtenir 4 score par matrice (voir section \ref{sec:1m4s}).
+Et tout le travail est réparti sur 4 threads (voir section \ref{multithreading}).
+
+\subsection{Les complémentaires inversés dans l'algorithme glouton}%explique comment on gère la suppressions des complémentaires inversés
+Au cours de l'exécution de l'algorithme glouton (Greedy), lorsqu'un arc est ajouté au chemin hamiltonien, les complémentaires inversés de ses noeuds ne doivent plus être pris en compte.
 Pour cela, nous avons modifié l'algorithme glouton et ajouté une fonction dans la structure union-find:
 en ajoutant un arc \arc{f}{g} au chemin hamiltonien, nous mettons les booléens \texttt{in} et \texttt{out} de leur complémentaire inversé à vrai.
 Ainsi les arcs issus de ces noeuds ne seront jamais ajoutés dans le chemin.
@@ -24,16 +58,22 @@ réellement les supprimer, il suffit de décrémenter de deux le nombre d'ensemb
 Ce compteur d'ensembles distincts est utilisé pour arrêter l'algorithme
 lorsqu'il n'y a plus qu'un ensemble dans l'\texttt{UnionFind}.
 
-\section{Les inclusions de fragments}
-Dans le calcul du consensus, la première chose qui est faite est de calculer
-l'ordre de traitement des fragments. L'alignement de $s$ et $t$ calcule aussi
-$\delta$, l'écart entre le premier nucléotide de $t$ et celui de $s$.
-$t$ commence avant $s$ (et $t \subseteq s$) si et seulement si $\delta<0$.
-
-Nous aurions pu nous simplifier la tâche et supprimer les fragments inclus à
-d'autres mais leurs voix auraient été échangées contre un calcul plus simple
-du consensus.
-%TODO exemple simple ?
+\input{consensus}
 
 \input{optimisation}
+
+\section{Points forts et points faibles}
+\subsection*{Points faibles}
+Il reste des optimisations à faire pour l'algorithme de consensus et pour les tris des très nombreux arcs avant l'application de l'algorithme glouton.
+Mais ces optimisations apporteront des performances négligeables par rapport au temps mis pour la création des arcs.
+
+Les contigs obtenus sont trop longs.
+
+\subsection*{Points forts}
+La rapidité de notre programme. En effet, pour la collection 2, contenant 1600 fragments,\\
+le temps total d'exécution sur un PC du local Escher est d'un peu plus de 20 minutes\\
+et le temps total d'exécution sur le PC distant à disposition pour ce projet, compilé en mode debug, est d'un peu plus de 40 minutes.
+
+Il n'y a actuellement aucun bug ou erreur connu.
+
 \end{document}
