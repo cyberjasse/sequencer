@@ -25,10 +25,16 @@ Ce compteur d'ensembles distincts est utilisé pour arrêter l'algorithme
 lorsqu'il n'y a plus qu'un ensemble dans l'\texttt{UnionFind}.
 
 \section{Les inclusions de fragments}
-Dans le calcul du consensus, la première chose qui est faite est de calculer
-l'ordre de traitement des fragments. L'alignement de $s$ et $t$ calcule aussi
-$\delta$, l'écart entre le premier nucléotide de $t$ et celui de $s$.
-$t$ commence avant $s$ (et $t \subseteq s$) si et seulement si $\delta<0$.
+Pour rappel, si nous avons deux fragments $f$ et $g$ et que lors de l'alignement, $f$ est inclus à $g$,
+alors on a un arc \arc{f}{g} car le sens de l'arc signifie juste que l'alignement se termine à la fin de $f$.
+Dans le calcul du consensus, à la première étape, celle qui consiste à calculer l'ordre de traitement des fragments,
+nous recherchons pour chaque alignement, $\Delta$, la position du début de l'alignement à partir de la position du premier caractère de $f$.
+Et cette position peut donc être négative dans le cas où $f$ est inclus à $g$ et que l'alignement commence avant le premier caractère de $f$.\\
+
+En obtenant le $\Delta$ pour chaque alignement, nous pouvons donc obtenir une file de priorité contenant, dans l'ordre, les positions absolues de débuts d'alignements.
+Par position absolue, nous entendons la position dans le contig sans suppression de gap.
+Cette file de priorité nous premetra donc de savoir à partir de quelle position le nombre d'alignement à prendre en compte pour le consensus d'un symbole change.\\
+
 
 Nous aurions pu nous simplifier la tâche et supprimer les fragments inclus à
 d'autres mais leurs voix auraient été échangées contre un calcul plus simple
