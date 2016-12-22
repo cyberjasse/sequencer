@@ -16,10 +16,11 @@
  \item Chargement d'un fichier fasta
  \item Consensus et contig final à partir d'un chemin hamiltonien
  \item Parsing de la ligne de commande
+ \item Écriture et chargement de chemin hamiltonien
 \end{itemize}
 \noindent Tandis que Jason \textsc{Bury} s'est chargé de:
 \begin{itemize}
- \item Création de tous les arcs et leur poid
+ \item Création de tous les arcs et leur poids
  \item Algorithme Greedy et chemin hamiltonien
  \item Écriture d'un fichier fasta
 \end{itemize}
@@ -65,15 +66,15 @@ lorsqu'il n'y a plus qu'un ensemble dans l'\texttt{UnionFind}.
 \section{Points forts et points faibles}
 \subsection*{Points faibles}
 Il reste des optimisations à faire pour l'algorithme de consensus et pour les tris des très nombreux arcs avant l'application de l'algorithme glouton.
-Mais ces optimisations apporteront des performances négligeables par rapport au temps mis pour la création des arcs.
+Mais ces optimisations apporteront des performances négligeables par rapport au temps mis pour la création des arcs.\\
 
-Les contigs obtenus sont trop longs.
+La mémoire utilisée est assez volumineuse (3,5 Go).
+Cela peut s'expliquer par le fait que les matrices d'alignement utilisées lors de la création des arcs ne sont pas supprimées dès qu'elles ne sont plus utilisées.
+Le garbage collector n'étant pas invoqué à la fin de chaque calcul de score.
 
 \subsection*{Points forts}
-La rapidité de notre programme. En effet, pour la collection 2, contenant 1600 fragments,\\
-le temps total d'exécution sur un PC du local Escher est d'un peu plus de 20 minutes\\
-et le temps total d'exécution sur le PC distant à disposition pour ce projet, compilé en mode debug, est d'un peu plus de 40 minutes.
-
-Il n'y a actuellement aucun bug ou erreur connu.
+La rapidité de notre programme. En effet, pour la collection 2, contenant 1600 fragments,
+Le temps d'exécution sur le PC distant mis à notre disposition est de 17 minutes.
+Ce PC dispose de 64 CPUs x86-64 à 2,2Ghz mais 12 threads ont été utilisés par notre programme.
 
 \end{document}
