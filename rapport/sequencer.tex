@@ -128,14 +128,14 @@ L'image de droite représente le résultat du complémentaire inversé du contig
 \end{figure}
 \incl{4}{\dmscale}
 \incl{5}{\dmscale}
-%FIXME
 La figure \ref{dm2} est le meilleur résultat obtenu pour la collection 2
 mais nous n'avons plus pu la reproduire.
 
-On observe que nous produisons des contigs bien plus longs que la cible.
-La cible est reproduite mais fragmentée;
-certains morceaux sont des complémentaires inverses.
+On observe que nous produisons des contigs plus courts que la cible.
+La cible est partiellement reproduite mais désordonnée;
+certains morceaux sont des complémentaires inverses de ceux attendus.
 
+\newpage
 \section{Conclusion}
 \subsection{Difficultés rencontrées}
 La plus grande difficulté que nous avons rencontrée était l'élaboration de
@@ -143,14 +143,19 @@ l'algorithme de consensus.
 D'abord, il a fallu trouver un moyen de propager les gaps :
 lorsqu'un alignement entre deux fragments produit des gaps, il faut
 les prendre en compte pour la position du prochain alignement dans le contig.
-
-Ensuite, il fallait prendre en compte les inclusions de fragments.
+Ensuite, il fallait gérer les inclusions de fragments.
 Nous ne pouvions donc pas nous permettre de faire un consensus
-jusqu'au début du prochain alignement.
-En effet, si le prochain alignement inclut un fragment dans un autre, il risque
+jusqu'au début du prochain alignement :
+en effet, si le prochain alignement inclut un fragment dans un autre, il risque
 de dépasser à gauche de la position où se trouve le dernier symbole du
-consensus réalisé jusque là.
+consensus réalisé jusque-là.
 
-Ensuite, nous avons été fort perturbés par l'utilisation que nous avons faite
+Nous avons été fort perturbés par l'utilisation que nous avons faite
 de dotmatcher : en ligne et hors-ligne, les résultats étaient différents.
+
+\subsection{Apports}
+Ce projet était l'occasion de voir une application de l'algorithmique dans un
+domaine scientifique qui en paraît très détaché : la génomique.
+Le multithreading et l'optimisation de nos algorithmes (en mémoire et en temps)
+étaient obligatoires, nous ne sommes pas habitués à de telles tailles d'entrées.
 \end{document}
