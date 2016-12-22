@@ -7,7 +7,7 @@ d'autre part, un vote doit être effectué lorsque des fragments se chevauchent.
 Les fragments sont d'abord ordonnés par position croissante,
 relative à celle du premier fragment.
 Pour ce faire, le premier fragment est ajouté à la position 0 avant de
-parcourir toutes les arcs \arc{s}{t} du chemin hamiltonien :
+parcourir tous les arcs \arc{s}{t} du chemin hamiltonien :
 les gaps de l'alignement précédent sont ajoutés à celui de $t$ avec $s$ et
 l'écart entre les alignements de $s$ et de $t$ (négatif si $s\subseteq t$) est
 ajouté à la position courante. Cette position et ce nouvel alignement de $t$

@@ -108,7 +108,7 @@ public class Main {
 			if (path == null) {
 				int n = fragments.size() * fragments.size();
 				System.out.println("Computing "+n+" edges...");
-				List<Sequencer.Edge> edges = Sequencer.allEdges(fragments, 4);
+				List<Sequencer.Edge> edges = Sequencer.allEdges(fragments, Runtime.getRuntime().availableProcessors());
 				System.out.println("Computing the Hamiltonian path...");
 				path = Sequencer.hamiltonian(edges, fragments.size());
 				if (out_ham != null) {

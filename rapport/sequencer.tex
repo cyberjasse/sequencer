@@ -17,7 +17,7 @@
  \item Consensus et contig final à partir d'un chemin hamiltonien
  \item Parsing de la ligne de commande
  \item Écriture et chargement de chemin hamiltonien
- \item Sauvegarde du chemin hamiltonien (aide au débogage)
+ \item Sauvegarde du chemin hamiltonien
 \end{itemize}
 \noindent Tandis que Jason \textsc{Bury} s'est chargé de:
 \begin{itemize}
@@ -90,14 +90,52 @@ au début de l'algorithme glouton, ceux de même poids ne seront pas
 toujours dans le même ordre d'une exécution à l'autre.
 
 \subsection*{Points forts}
-\begin{itemize}
-	\item Rapidité : pour la collection 2 contenant 1600 fragments,
-le temps d'exécution sur le PC distant mis à notre disposition est de 17 minutes.
-Ce PC dispose de 64 CPUs x86-64 à 2,2 Ghz mais seuls 12 threads
+Notre programme est assez rapide : pour la collection 2 contenant 1600 fragments,
+le temps d'exécution sur le PC mis à notre disposition est de 17 minutes.
+Ce PC dispose de 64 CPUs x86-64 à 2,2 GHz mais seuls 12 threads
 ont été utilisés par notre programme.
-	\item Séparation interface/calculs : le code est réutilisable, l'interface
-en ligne de commande est séparée des vrais algorithmes au coeur du logiciel.
-\end{itemize}
+
+L'interface est séparée de la partie qui effectue les calculs :
+le code est facilement réutilisable.
+
+Une fonctionnalité bonus a été implémentée : il est possible de sauvegarder
+un chemin hamiltonien afin de tester différentes méthodes de consensus
+sans devoir recalculer tous les arcs (l'opération la plus longue).
+
+\newcommand{\dmscale}{0.6}
+\newcommand{\incl}[2]{
+\begin{figure}
+ \begin{minipage}[c]{.47\linewidth}
+  \includegraphics[scale=#2]{figures/dotmatcherc#1.png}
+ \end{minipage}
+ \begin{minipage}[c]{.47\linewidth}
+  \includegraphics[scale=#2]{figures/dotmatcherc#1r.png}
+ \end{minipage} 
+ \caption{Résultat de la collection #1}
+ \label{dm#1}
+\end{figure}
+}
+
+\section{Observations}
+Les figures \ref{dm1}, \ref{dm2}, \ref{dm4} et \ref{dm5} ont été générées par \emph{dotmatcher}.
+L'image de droite représente le résultat du complémentaire inversé du contig produit par notre programme.
+
+\incl{1}{\dmscale}
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.4]{figures/dotmatcherc2.png}
+ \caption{Résultat de la collection 2}
+ \label{dm2}
+\end{figure}
+\incl{4}{\dmscale}
+\incl{5}{\dmscale}
+%FIXME
+La figure \ref{dm2} est le meilleur résultat obtenu pour la collection 2
+mais nous n'avons plus pu la reproduire.
+
+On observe que nous produisons des contigs bien plus longs que la cible.
+La cible est reproduite mais fragmentée;
+certains morceaux sont des complémentaires inverses.
 
 \section{Conclusion}
 \subsection{Difficultés rencontrées}
