@@ -44,7 +44,7 @@ Pour obtenir le poid d'un arc \arc{f}{g},
 on calcul d'abord la matrice d'alignement semi-global entre $f$ et $g$ où chaque ligne correspond à un symbole de $f$.
 Le score est le maximum des scores de la dernière ligne.
 En réalité il n'est pas nécessaire de calculer toutes les matrices d'alignement car on peut obtenir 4 score par matrice (voir section \ref{sec:1m4s}).
-Et tout le travail est réparti sur 4 threads (voir section \ref{multithreading}).
+Et tout le travail est réparti sur plusieurs threads (voir section \ref{multithreading}).
 
 \subsection{Les complémentaires inversés dans l'algorithme glouton}%explique comment on gère la suppressions des complémentaires inversés
 Au cours de l'exécution de l'algorithme glouton (Greedy), lorsqu'un arc est ajouté au chemin hamiltonien, les complémentaires inversés de ses noeuds ne doivent plus être pris en compte.
@@ -72,17 +72,42 @@ La mémoire utilisée est assez volumineuse (3,5 Go).
 Cela peut s'expliquer par le fait que les matrices d'alignement utilisées lors de la création des arcs ne sont pas supprimées dès qu'elles ne sont plus utilisées.
 Le garbage collector n'étant pas invoqué à la fin de chaque calcul de score.\\
 
-Les résultats d'une exécution à l'autre peuvent être différents car notre implémentation de création de chemin hamiltonien est non déterministe.
-C'est dû à l'étape de création d'arcs.
-Chaques threads créent et ajoutent les arcs dans une liste commune sans synchronisation.
-Les arcs dans cette liste ne sont donc pas dans le même ordre d'une exécution à l'autre.
-Ensuite lors du tri au début de l'application de l'algorithme glouton, les arcs de même poids ne seront pas dans le même ordre d'une exécution à l'autre.
-Les arcs ne seront pas selectionnés dans le même ordre.
-
 \subsection*{Points forts}
 La rapidité de notre programme. En effet, pour la collection 2, contenant 1600 fragments,
 Le temps d'exécution sur le PC distant mis à notre disposition est de 17 minutes.
-Ce PC dispose de 64 CPUs x86-64 à 2,2Ghz mais 12 threads ont été utilisés par notre programme.
+Ce PC dispose de 64 CPUs x86-64 à 2,2Ghz mais 12 threads ont été utilisés par notre programme.\\
+
+Une fonctionnalité bonus a été implémentée: il est possible de sauvegarder un chemin hamiltonien.
+Cela permet de tester différentes méthodes de consensus sans devoir recalculer tous les arcs.
+
+\newcommand{\dmscale}{0.6}
+\newcommand{\incl}[2]{
+\begin{figure}
+ \begin{minipage}[c]{.47\linewidth}
+  \includegraphics[scale=#2]{figures/dotmatcherc#1.png}
+ \end{minipage}
+ \begin{minipage}[c]{.47\linewidth}
+  \includegraphics[scale=#2]{figures/dotmatcherc#1r.png}
+ \end{minipage} 
+ \caption{Résultat de la collection #1}
+ \label{dm#1}
+\end{figure}
+}
+\section{Observations}
+Les Figures \ref{dm1}, \ref{dm2}, \ref{dm4} et \ref{dm5} ont été générées pas \emph{dotmatcher}.
+L'image de droite représente le résultat du complémentaire inversé du contig produit par notre programme.\\
+\incl{1}{\dmscale}
+\begin{figure}
+ \centering
+ \includegraphics[scale=0.4]{figures/dotmatcherc2.png}
+ \caption{Résultat de la collection 2}
+ \label{dm2}
+\end{figure}
+\incl{4}{\dmscale}
+\incl{5}{\dmscale}
+La Figure \ref{dm2} est le meilleur résultat obtenu pour la collection 2 mais nous n'avons plus pu la reproduire.
+On observe que nous produisons des contigs visiblement trop longs par rapport à la cible.
+La cible est reproduite mais fragmentée en quelques morceaux et certains morceaux sont inversés complémentarisés.
 
 \section{Conclusion}
 \subsection{Difficultés rencontrées}
@@ -94,5 +119,6 @@ Ensuite, il fallait prendre en compte les inclusions de fragments.
 Nous ne pouvions donc pas nous permettre de faire un consensus jusque le début du prochain alignement.
 En effet, si le prochain alignement s'agit d'un alignement qui va inclure un fragment dans un autre, cet alignement risque de dépasser vers la gauche la position où se trouve le dernier symbole du consensus.\\
 
-Ensuite, nous avons été fort perturbés par l'utilisation que nous avons fait de dotmatcher en ligne nous affichait des résultats différents de dotmatcher hors-ligne.
+Ensuite, nous avons été fort perturbés par l'utilisation que nous avons fait de dotmatcher. Dotmatcher en ligne nous affichait des résultats différents de dotmatcher hors-ligne.
+Nous n'avons pas pu reproduire le résultats reporté ici pour la collection 2.
 \end{document}

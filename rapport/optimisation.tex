@@ -1,5 +1,5 @@
 \section{Optimisations}
-Dans cette section, nous expliquerons les techniques que nous avons utilisées dans le but d'améliorer les performances de notre programme, en temps de calcul ou en mémoire.
+Dans cette section, nous expliquons les techniques que nous avons utilisées dans le but d'améliorer les performances de notre programme, en temps de calcul ou en mémoire.
 
 \subsection{Classe Complementary}
 Puisque certains fragments peuvent être le complémentaire inversé d'un fragment
@@ -14,7 +14,7 @@ pour les fragments chargés à partir du fichier.
 
 \subsection{Identifiant des fragments}\label{sec:id}
 Pour améliorer les performances de l'algorithme Greedy, chaque fragment est
-numéroté. Soient $n$ le nombre de fragments chargés depuis le fichier et $0 \le i < 2n$.
+numéroté. Soit $n$ le nombre de fragments chargés depuis le fichier et $0 \le i < 2n$.
 \begin{itemize}
  \item Si $i < n$, le fragment $i$ est le $(i+1)$\textsuperscript{ème} fragment chargé.
  \item Si $i \ge n$, le fragment $i$ est le complémentaire inversé du fragment $i-n$.
@@ -63,7 +63,7 @@ Deux méthodes de parallélisation sont envisageables:
 	C'est exactement le problème des producteurs/consommateurs. %FIXME formulation ?
 \end{enumerate}
 Nous avons choisi la première méthode car la seconde aurait produit beaucoup d'appels systèmes (autant d'appels que d'arcs).
-Cependant, si la quantité de travail répartie entre les threads est désiquilibré, alors la deuxième méthode est plus efficace.
+Cependant, si la quantité de travail répartie entre les threads est désiquilibrée, alors la deuxième méthode est plus efficace.
 Nous observons que pour la plus grande collection, la 2, l'écart de temps de calcul entre les threads ne dépasse pas 1 minute.
 
 \subsection{Même score pour plusieurs arcs}\label{sec:1m4s}
@@ -103,5 +103,5 @@ Ce qui est négligeable par rapport à la consommation maximale de mémoire de n
 
 \subsection{Typage des identifiants}
 Dans la section \ref{sec:id}, nous avons expliqués que les noeuds du graphe sont représentés par un identifiant.
-Or le nombre de fragment maximal est 1600. On n'aura pas besoin de plus de 3200 identifiants.
-Les identifiants auraient pu être encodés sur 2 octets.
+Or le nombre de fragment maximal de fragments est 1600 (collection 2). On n'aura pas besoin de plus de 3200 identifiants.
+Ils auraient pu être encodés sur 2 octets.
