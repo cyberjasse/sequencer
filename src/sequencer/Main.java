@@ -57,9 +57,11 @@ public class Main {
 				usage(0);
 			else {
 				input = args[0];
-				out = "out.fasta";
-				in_ham = out_ham = "ham.dat";
-				out_ic = "out.ic.fasta";
+				String stripped = input.substring(0, input.lastIndexOf('.'));
+				System.out.println(stripped);
+				out = stripped+".out.fasta";
+				in_ham = out_ham = stripped+".ham";
+				out_ic = stripped+".ic.fasta";
 			}
 		}
 		else {
