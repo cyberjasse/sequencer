@@ -29,6 +29,9 @@ public class Complementary extends Sequence {
 
 	@Override
 	public String toString() {
-		return null; //crashing is better than returning something incorrect
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<fragment.length(); i++)
+			sb.append(get(i));
+		return sb.toString();
 	}
 }
