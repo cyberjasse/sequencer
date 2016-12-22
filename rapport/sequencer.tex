@@ -70,7 +70,14 @@ Mais ces optimisations apporteront des performances négligeables par rapport au
 
 La mémoire utilisée est assez volumineuse (3,5 Go).
 Cela peut s'expliquer par le fait que les matrices d'alignement utilisées lors de la création des arcs ne sont pas supprimées dès qu'elles ne sont plus utilisées.
-Le garbage collector n'étant pas invoqué à la fin de chaque calcul de score.
+Le garbage collector n'étant pas invoqué à la fin de chaque calcul de score.\\
+
+Les résultats d'une exécution à l'autre peuvent être différents car notre implémentation de création de chemin hamiltonien est non déterministe.
+C'est dû à l'étape de création d'arcs.
+Chaques threads créent et ajoutent les arcs dans une liste commune sans synchronisation.
+Les arcs dans cette liste ne sont donc pas dans le même ordre d'une exécution à l'autre.
+Ensuite lors du tri au début de l'application de l'algorithme glouton, les arcs de même poids ne seront pas dans le même ordre d'une exécution à l'autre.
+Les arcs ne seront pas selectionnés dans le même ordre.
 
 \subsection*{Points forts}
 La rapidité de notre programme. En effet, pour la collection 2, contenant 1600 fragments,
