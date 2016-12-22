@@ -77,4 +77,15 @@ La rapidité de notre programme. En effet, pour la collection 2, contenant 1600 
 Le temps d'exécution sur le PC distant mis à notre disposition est de 17 minutes.
 Ce PC dispose de 64 CPUs x86-64 à 2,2Ghz mais 12 threads ont été utilisés par notre programme.
 
+\section{Conclusion}
+\subsection{Difficultés rencontrées}
+La plus grande difficulté que nous avons recontré était l'élaborration de l'algorithme de consensus.
+D'abord il a fallut trouver un moyen de propager les gaps.
+C'est à dire que lorsqu'un alignement entre deux fragments produit des gaps, il faut les prendre en compte pour la position du prochain alignement dans le contig.
+
+Ensuite, il fallait prendre en compte les inclusions de fragments.
+Nous ne pouvions donc pas nous permettre de faire un consensus jusque le début du prochain alignement.
+En effet, si le prochain alignement s'agit d'un alignement qui va inclure un fragment dans un autre, cet alignement risque de dépasser vers la gauche la position où se trouve le dernier symbole du consensus.\\
+
+Ensuite, nous avons été fort perturbés par l'utilisation que nous avons fait de dotmatcher en ligne nous affichait des résultats différents de dotmatcher hors-ligne.
 \end{document}
