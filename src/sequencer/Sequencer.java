@@ -256,7 +256,7 @@ public class Sequencer{
 		int j;
 		for (j = bs.length() - 1; j > p.start - 1; j--)
 			r.append(bs.get(j));
-		for (int k = p.pathlength - 1; k>=0 && i>=0; k--) {
+		for (int k = p.pathlength - 1; k>=0; k--) {
 			for (; a.charAt(i)=='-'; i--)
 				r.append('-');
 			switch (p.path[k]) {
@@ -268,6 +268,7 @@ public class Sequencer{
 					j--;
 					break;
 				case AlignmentPath.UP:
+					i--;
 					r.append('-');
 			}
 		}
@@ -276,12 +277,18 @@ public class Sequencer{
 				r.append('-');
 			r.append(bs.get(j));
 		}
+		int before = 0;
+		for (int z=i; z>=0; z--)
+			if (a.charAt(z) == '-')
+				before++;
+		if (before > 0)
+			before--;
 		String ret = r.reverse().toString();
 		int endsAt = pos+i+r.length()-1;
 		if (p.delta < 0) //inclusion: i==0
 			return new Alignment(ret, p.delta+1, endsAt-1, pos+p.delta+1);
 		else
-			return new Alignment(ret, i, endsAt, -i);
+			return new Alignment(ret, i+before, endsAt, -i);
 	}
 
 	/**

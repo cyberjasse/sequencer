@@ -86,6 +86,14 @@ public class AlignmentTest{
 		*/
 		a = new Alignment("TAT--CTAAGG", -1, 9, -1);
 		assertEquals(a, Sequencer.getAlignment("AT--CT", s, t, 0));
+		s = new Sequence("ATCGTAAT");
+		t = new Sequence("TAATGG");
+		/*
+		A--TCGT-AAT
+		 --   T-AATGG
+		*/
+		a = new Alignment("T-AATGG", 7, 12, -6);
+		assertEquals(a, Sequencer.getAlignment("A--TCGT-AAT", s, t, 0));
 	}
 	
 	@Test
