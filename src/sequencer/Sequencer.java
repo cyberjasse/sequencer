@@ -178,7 +178,7 @@ public class Sequencer{
 		Iterator<Edge> it = path.iterator();
 		PriorityQueue<Marker> pq = new PriorityQueue<>();
 		//let's not forget the first sequence
-		Alignment al = new Alignment(getById(frags, path.get(0).from).toString(), 0, 0, 0);
+		Alignment al = new Alignment(getById(frags, path.get(0).from).toString(), 0);
 		pq.add(new Marker(0, al));
 		int pos = 0;
 		while (it.hasNext()) {
@@ -199,7 +199,6 @@ public class Sequencer{
 			while (pq.peek()!=null && pq.peek().equals(top))
 				//remove duplicate markers
 				pq.poll();
-			top.alignment.position = 0;
 			started.add(top.alignment);
 			while ((pq.peek()==null && started.size()>0) || (pq.peek()!=null && pq.peek().pos>pos)) {
 				byte[] votes = new byte['t'+1];
@@ -284,11 +283,10 @@ public class Sequencer{
 		if (before > 0)
 			before--;
 		String ret = r.reverse().toString();
-		int endsAt = pos+i+r.length()-1;
 		if (p.delta < 0) //inclusion: i==0
-			return new Alignment(ret, p.delta+1, endsAt-1, pos+p.delta+1);
+			return new Alignment(ret, p.delta+1);
 		else
-			return new Alignment(ret, i+before, endsAt, -i);
+			return new Alignment(ret, i+before);
 	}
 
 	/**

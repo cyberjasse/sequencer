@@ -68,7 +68,7 @@ public class AlignmentTest{
 		G-TCCC
 		G-TACCA
 		*/
-		Alignment a = new Alignment("G-TACCA", 0, 6, 0);
+		Alignment a = new Alignment("G-TACCA", 0);
 		assertEquals(a, Sequencer.getAlignment("G-TCCC", s, t, 0));
 		s = new Sequence("ATCGTAAT");
 		t = new Sequence("TAATGG");
@@ -76,7 +76,7 @@ public class AlignmentTest{
 		ATCGT-AAT
 		    T-AATGG
 		*/
-		a = new Alignment("T-AATGG", 4, 10, -4);
+		a = new Alignment("T-AATGG", 4);
 		assertEquals(a, Sequencer.getAlignment("ATCGT-AAT", s, t, 0));
 		s = new Sequence("ATCT");
 		t = new Sequence("TATCTAAGG");
@@ -84,7 +84,7 @@ public class AlignmentTest{
 		 AT--CT
 		TAT--CTAAGG
 		*/
-		a = new Alignment("TAT--CTAAGG", -1, 9, -1);
+		a = new Alignment("TAT--CTAAGG", -1);
 		assertEquals(a, Sequencer.getAlignment("AT--CT", s, t, 0));
 		s = new Sequence("ATCGTAAT");
 		t = new Sequence("TAATGG");
@@ -92,7 +92,7 @@ public class AlignmentTest{
 		A--TCGT-AAT
 		 --   T-AATGG
 		*/
-		a = new Alignment("T-AATGG", 7, 12, -6);
+		a = new Alignment("T-AATGG", 7);
 		assertEquals(a, Sequencer.getAlignment("A--TCGT-AAT", s, t, 0));
 	}
 	
